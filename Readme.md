@@ -1,4 +1,4 @@
-# Coder OSS on GKE with Terraform and Spacelift in <20 minutes
+# Coder OSS on GKE with Terraform in <20 minutes
 
 From Repo
 
