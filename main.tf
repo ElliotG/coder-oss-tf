@@ -12,10 +12,7 @@ variable "region" {
   default = "us-central1"
 }
 variable "coder_version" {
-    default = "0.9.10"
-}
-variable "coder_access_url" {
-    default = "https://google.com/replace_me"
+    default = "0.12.7"
 }
 
 provider "google" {
@@ -121,8 +118,6 @@ resource "helm_release" "coder" {
     <<EOT
 coder:
   env:
-    - name: CODER_ACCESS_URL
-      value: ${var.coder_access_url}
     - name: CODER_PG_CONNECTION_URL
       value: "postgres://coder:coder@postgresql.coder.svc.cluster.local:5432/coder?sslmode=disable"
     - name: CODER_TEMPLATE_AUTOIMPORT
