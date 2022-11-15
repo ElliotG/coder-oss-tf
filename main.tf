@@ -120,7 +120,7 @@ coder:
   env:
     - name: CODER_PG_CONNECTION_URL
       value: "postgres://coder:coder@postgresql.coder.svc.cluster.local:5432/coder?sslmode=disable"
-    - name: CODER_TEMPLATE_AUTOIMPORT
+    - name: CODER_AUTO_IMPORT_TEMPLATES
       value: "kubernetes"
     EOT
   ]
