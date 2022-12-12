@@ -18,7 +18,7 @@ resource "azurerm_resource_group" "coder" {
 }
 
 resource "azurerm_container_registry" "coder" {
-  name                = "coder-registry"
+  name                = "coderregistry"
   resource_group_name = azurerm_resource_group.coder.name
   location            = azurerm_resource_group.coder.location
   sku                 = "Basic"
