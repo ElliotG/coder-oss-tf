@@ -1,10 +1,15 @@
 terraform {
   required_providers {
-    google = {
-      source = "hashicorp/google"
-      version = "4.3.0"
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "=3.0.0"
     }
   }
+}
+
+# Configure the Microsoft Azure Provider
+provider "azurerm" {
+  features {}
 }
 
 resource "azurerm_resource_group" "coder" {
