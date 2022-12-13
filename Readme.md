@@ -9,4 +9,5 @@ The purpose of this repo is to demonstrate how remote development environments w
 Each subfolder in this repo is for a different platform.
 
 * GKE
-* Azure (coming soon)
+* Azure
+* AWS (Coming soon)
