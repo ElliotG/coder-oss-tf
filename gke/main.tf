@@ -47,7 +47,7 @@ resource "google_container_cluster" "primary" {
 }
 
 ###############################################################
-# Generic K8s configuration
+# K8s configuration
 ###############################################################
 data "google_client_config" "default" {
   depends_on = [google_container_cluster.primary]
@@ -61,8 +61,14 @@ provider "kubernetes" {
   )
 }
 
+resource "kubernetes_namespace" "coder_namespace" {
+  metadata {
+   name = "coder"
+  }
+}
+
 ###############################################################
-# Coder configuration
+# Helm configuration
 ###############################################################
 provider "helm" {
   kubernetes {
@@ -74,11 +80,6 @@ provider "helm" {
   }
 }
 
-resource "kubernetes_namespace" "coder_namespace" {
-  metadata {
-   name = "coder"
-  }
-}
 
 resource "helm_release" "pg_cluster" {
   name       = "postgresql"
