@@ -12,7 +12,7 @@ variable "region" {
   default = "us-central1"
 }
 variable "coder_version" {
-    default = "0.13.2"
+    default = "0.12.7"
 }
 
 provider "google" {
@@ -125,4 +125,8 @@ coder:
       value: "kubernetes"
     EOT
   ]
+
+  depends_on = [
+    helm_release.pg_cluster
+  ]    
 }
