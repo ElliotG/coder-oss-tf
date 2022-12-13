@@ -7,6 +7,10 @@ terraform {
   }
 }
 
+variable "coder_version" {
+    default = "0.13.2"
+}
+
 # Configure the Microsoft Azure Provider
 provider "azurerm" {
   features {}

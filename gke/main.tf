@@ -12,7 +12,7 @@ variable "region" {
   default = "us-central1"
 }
 variable "coder_version" {
-    default = "0.12.7"
+    default = "0.13.2"
 }
 
 provider "google" {
