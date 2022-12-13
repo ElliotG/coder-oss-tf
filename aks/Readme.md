@@ -1,6 +1,6 @@
 ## Getting Coder Installed
 
-1. Create an [Azure Account](https://portal.azure.com/) and [a service principal](https://docs.spacelift.io/integrations/cloud-providers/azure#create-a-service-principal)
+1. Create an [Azure Account](https://portal.azure.com/) and [a service principal](https://docs.spacelift.io/integrations/cloud-providers/azure#create-a-service-principal). Make sure to give it the Owner role (not Contributor).
 
 
  [a project](https://console.cloud.google.com/projectcreate), and [a service account](https://console.cloud.google.com/iam-admin/serviceaccounts/create) in that project with [editor](https://cloud.google.com/iam/docs/understanding-roles#basic) permissions.
