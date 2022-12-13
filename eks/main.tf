@@ -61,7 +61,7 @@ resource "aws_iam_role_policy_attachment" "coder_AmazonEKSVPCResourceController"
 
 resource "aws_eks_cluster" "coder" {
   name     = "coder"
-  role_arn = aws_iam_role.example.arn
+  role_arn = aws_iam_role.coder_eks_cluster_role.arn
 
   vpc_config {
     subnet_ids = [aws_default_subnet.default_az1.id, aws_default_subnet.default_az2.id]
