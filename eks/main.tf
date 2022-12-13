@@ -79,8 +79,8 @@ resource "aws_eks_cluster" "coder" {
 # K8s configuration
 ###############################################################
 provider "kubernetes" {
-  host                   = var.cluster_endpoint
-  cluster_ca_certificate = base64decode(var.cluster_ca_cert)
+  host                   = aws_eks_cluster.coder.endpoint
+  cluster_ca_certificate = base64decode(aws_eks_cluster.coder.certificate_authority[0].data)
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
     args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.coder.name]
