@@ -21,14 +21,6 @@ resource "azurerm_resource_group" "coder" {
   location = "Central US"
 }
 
-#resource "azurerm_container_registry" "coder" {
-#  name                = "coderregistry"
-#  resource_group_name = azurerm_resource_group.coder.name
-#  location            = azurerm_resource_group.coder.location
-#  sku                 = "Basic"
-#  admin_enabled       = false
-#}
-
 resource "azurerm_kubernetes_cluster" "coder" {
   name                = "coder-k8s-cluster"
   location            = azurerm_resource_group.coder.location
@@ -45,13 +37,6 @@ resource "azurerm_kubernetes_cluster" "coder" {
     type = "SystemAssigned"
   }
 }
-
-#resource "azurerm_role_assignment" "coder" {
-#  principal_id                     = azurerm_kubernetes_cluster.coder.kubelet_identity[0].object_id
-#  role_definition_name             = "AcrPull"
-#  scope                            = azurerm_container_registry.coder.id
-#  skip_service_principal_aad_check = true
-#}
 
 ###############################################################
 # K8s configuration
