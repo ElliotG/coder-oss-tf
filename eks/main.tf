@@ -100,14 +100,6 @@ resource "kubernetes_namespace" "coder_namespace" {
 ###############################################################
 provider "helm" {
   kubernetes {
-    host  = "https://${google_container_cluster.primary.endpoint}"
-    token = data.google_client_config.default.access_token
-    cluster_ca_certificate = base64decode(aws_eks_cluster.coder.certificate_authority[0].data)
-  }
-}
-
-provider "helm" {
-  kubernetes {
     host                   = aws_eks_cluster.coder.endpoint
     cluster_ca_certificate = base64decode(aws_eks_cluster.coder.certificate_authority[0].data)
     exec {
@@ -117,7 +109,6 @@ provider "helm" {
     }
   }
 }
-
 
 resource "helm_release" "pg_cluster" {
   name       = "postgresql"
