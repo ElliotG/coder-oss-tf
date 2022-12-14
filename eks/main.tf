@@ -93,3 +93,78 @@ resource "kubernetes_namespace" "coder_namespace" {
    name = "coder"
   }
 }
+
+
+###############################################################
+# Helm configuration
+###############################################################
+provider "helm" {
+  kubernetes {
+    host  = "https://${google_container_cluster.primary.endpoint}"
+    token = data.google_client_config.default.access_token
+    cluster_ca_certificate = base64decode(aws_eks_cluster.coder.certificate_authority[0].data)
+  }
+}
+
+provider "helm" {
+  kubernetes {
+    host                   = aws_eks_cluster.coder.endpoint
+    cluster_ca_certificate = base64decode(aws_eks_cluster.coder.certificate_authority[0].data)
+    exec {
+      api_version = "client.authentication.k8s.io/v1alpha1"
+      args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.coder.name]
+      command     = "aws"
+    }
+  }
+}
+
+
+resource "helm_release" "pg_cluster" {
+  name       = "postgresql"
+  namespace  = kubernetes_namespace.coder_namespace.metadata.0.name
+  
+  repository = "https://charts.bitnami.com/bitnami"
+  chart      = "postgresql"
+
+  set {
+    name  = "auth.username"
+    value = "coder"
+  }
+  
+  set {
+    name  = "auth.password"
+    value = "coder"
+  } 
+  
+  set {
+    name  = "auth.database"
+    value = "coder"
+  } 
+
+  set {
+    name  = "persistence.size"
+    value = "10Gi"
+  }  
+}
+
+resource "helm_release" "coder" {
+  name       = "coder"
+  namespace  = kubernetes_namespace.coder_namespace.metadata.0.name
+  
+  chart      = "https://github.com/coder/coder/releases/download/v${var.coder_version}/coder_helm_${var.coder_version}.tgz"
+
+  values = [
+    <<EOT
+coder:
+  env:
+    - name: CODER_PG_CONNECTION_URL
+      value: "postgres://coder:coder@postgresql.coder.svc.cluster.local:5432/coder?sslmode=disable"
+    - name: CODER_AUTO_IMPORT_TEMPLATES
+      value: "kubernetes"
+    EOT
+  ]
+
+  depends_on = [
+    helm_release.pg_cluster
+  ]    
+}
