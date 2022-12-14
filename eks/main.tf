@@ -103,7 +103,7 @@ provider "helm" {
     host                   = aws_eks_cluster.coder.endpoint
     cluster_ca_certificate = base64decode(aws_eks_cluster.coder.certificate_authority[0].data)
     exec {
-      api_version = "client.authentication.k8s.io/v1alpha1"
+      api_version = "client.authentication.k8s.io/v1beta1"
       args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.coder.name]
       command     = "aws"
     }
