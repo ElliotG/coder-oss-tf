@@ -19,108 +19,76 @@ provider "aws" {
 ###############################################################
 # Set up the Networking Components
 ###############################################################
-resource "aws_default_subnet" "default_az1" {
-  availability_zone = "us-east-1a"
+module "vpc" {
+  source = "terraform-aws-modules/vpc/aws"
+
+  name = "coder"
+  cidr = "10.0.0.0/16"
+
+  azs             = ["us-east-1a", "us-east-1b", "us-east-1c"]
+  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+
+  enable_nat_gateway = true
+
+  public_subnet_tags = {
+    kubernetes.io/role/elb = "1"
+  }
+
+  private_subnet_tags = {
+    kubernetes.io/cluster/coder = "shared"
+  }
 }
 
-resource "aws_default_subnet" "default_az2" {
-  availability_zone = "us-east-1b"
-}
+module "eks" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 19.0"
 
+  cluster_name    = "coder"
+  cluster_version = "1.24"
 
-resource "aws_iam_role" "coder_eks_cluster_role" {
-  name = "eks-cluster"
+  cluster_endpoint_public_access  = truec
 
-  assume_role_policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "eks.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
+  cluster_addons = {
+    coredns = {
+      most_recent = true
     }
-  ]
-}
-POLICY
-}
-
-resource "aws_iam_role_policy_attachment" "coder_AmazonEKSClusterPolicy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-  role       = aws_iam_role.coder_eks_cluster_role.name
-}
-
-# Optionally, enable Security Groups for Pods
-# Reference: https://docs.aws.amazon.com/eks/latest/userguide/security-groups-for-pods.html
-resource "aws_iam_role_policy_attachment" "coder_AmazonEKSVPCResourceController" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
-  role       = aws_iam_role.coder_eks_cluster_role.name
-}
-
-resource "aws_eks_cluster" "coder" {
-  name     = "coder"
-  role_arn = aws_iam_role.coder_eks_cluster_role.arn
-
-  vpc_config {
-    subnet_ids = [aws_default_subnet.default_az1.id, aws_default_subnet.default_az2.id]
+    kube-proxy = {
+      most_recent = true
+    }
+    vpc-cni = {
+      most_recent = true
+    }
   }
 
-  # Ensure that IAM Role permissions are created before and deleted after EKS Cluster handling.
-  # Otherwise, EKS will not be able to properly delete EKS managed EC2 infrastructure such as Security Groups.
-  depends_on = [
-    aws_iam_role_policy_attachment.coder_AmazonEKSClusterPolicy,
-    aws_iam_role_policy_attachment.coder_AmazonEKSVPCResourceController,
-  ]
-}
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnets
 
-resource "aws_eks_fargate_profile" "coder" {
-  cluster_name           = aws_eks_cluster.coder.name
-  fargate_profile_name   = "coder"
-  pod_execution_role_arn = aws_iam_role.coder_fargate.arn
-  subnet_ids             = [aws_default_subnet.default_az1.id, aws_default_subnet.default_az2.id]
-
-  selector {
-    namespace = "coder"
+  # Fargate Profile(s)
+  fargate_profiles = {
+    default = {
+      name = "coder"
+      selectors = [
+        {
+          namespace = "coder"
+        }
+      ]
+    }
   }
-
-  depends_on = [
-    aws_iam_role_policy_attachment.coder_AmazonEKSFargatePodExecutionRolePolicy
-  ]   
-}
-
-resource "aws_iam_role" "coder_fargate" {
-  name = "eks-fargate-profile-example"
-
-  assume_role_policy = jsonencode({
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = {
-        Service = "eks-fargate-pods.amazonaws.com"
-      }
-    }]
-    Version = "2012-10-17"
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "coder_AmazonEKSFargatePodExecutionRolePolicy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSFargatePodExecutionRolePolicy"
-  role       = aws_iam_role.coder_fargate.name
 }
 
 ###############################################################
 # K8s configuration
 ###############################################################
+data "aws_eks_cluster_auth" "cluster_auth" {
+  name = "coder"
+}
+
 provider "kubernetes" {
-  host                   = aws_eks_cluster.coder.endpoint
-  cluster_ca_certificate = base64decode(aws_eks_cluster.coder.certificate_authority[0].data)
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.coder.name]
-    command     = "aws"
-  }
+  host                   = module.eks.cluster_endpoint
+  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+  token                  = data.aws_eks_cluster_auth.cluster_auth.token
+  load_config_file.      = false
 }
 
 resource "kubernetes_namespace" "coder_namespace" {
@@ -135,13 +103,10 @@ resource "kubernetes_namespace" "coder_namespace" {
 ###############################################################
 provider "helm" {
   kubernetes {
-    host                   = aws_eks_cluster.coder.endpoint
-    cluster_ca_certificate = base64decode(aws_eks_cluster.coder.certificate_authority[0].data)
-    exec {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.coder.name]
-      command     = "aws"
-    }
+    host                   = module.eks.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+    token                  = data.aws_eks_cluster_auth.cluster_auth.token
+    load_config_file.      = false
   }
 }
 
