@@ -65,15 +65,15 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
-  # Fargate Profile(s)
-  fargate_profiles = {
-    default = {
-      name = "coder"
-      selectors = [
-        {
-          namespace = "coder"
-        }
-      ]
+  eks_managed_node_groups = {
+    blue = {}
+    green = {
+      min_size     = 1
+      max_size     = 2
+      desired_size = 1
+
+      instance_types = ["t3.large"]
+      capacity_type  = "ON_DEMAND"
     }
   }
 }
