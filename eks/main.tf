@@ -133,11 +133,7 @@ resource "helm_release" "pg_cluster" {
   set {
     name  = "persistence.size"
     value = "10Gi"
-  }
-
-  depends_on = [
-    aws_eks_fargate_profile.coder
-  ]    
+  }   
 }
 
 resource "helm_release" "coder" {
@@ -159,6 +155,5 @@ coder:
 
   depends_on = [
     helm_release.pg_cluster,
-    aws_eks_fargate_profile.coder
   ]    
 }
