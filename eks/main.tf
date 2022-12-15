@@ -195,7 +195,7 @@ coder:
   ]
 
   depends_on = [
-    helm_release.pg_cluster
+    helm_release.pg_cluster,
     aws_eks_fargate_profile.coder
   ]    
 }
