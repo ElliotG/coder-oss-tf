@@ -32,11 +32,11 @@ module "vpc" {
   enable_nat_gateway = true
 
   public_subnet_tags = {
-    kubernetes.io/role/elb = "1"
+    "kubernetes.io/role/elb" : 1
   }
 
   private_subnet_tags = {
-    kubernetes.io/cluster/coder = "shared"
+    "kubernetes.io/cluster/coder" : shared
   }
 }
 
@@ -47,7 +47,7 @@ module "eks" {
   cluster_name    = "coder"
   cluster_version = "1.24"
 
-  cluster_endpoint_public_access  = truec
+  cluster_endpoint_public_access  = true
 
   cluster_addons = {
     coredns = {
