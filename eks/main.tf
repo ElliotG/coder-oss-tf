@@ -84,6 +84,10 @@ resource "aws_eks_fargate_profile" "coder" {
   selector {
     namespace = "coder"
   }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.coder_AmazonEKSFargatePodExecutionRolePolicy
+  ]   
 }
 
 resource "aws_iam_role" "coder_fargate" {
@@ -166,7 +170,11 @@ resource "helm_release" "pg_cluster" {
   set {
     name  = "persistence.size"
     value = "10Gi"
-  }  
+  }
+
+  depends_on = [
+    aws_eks_fargate_profile.coder
+  ]    
 }
 
 resource "helm_release" "coder" {
@@ -188,5 +196,6 @@ coder:
 
   depends_on = [
     helm_release.pg_cluster
+    aws_eks_fargate_profile.coder
   ]    
 }
