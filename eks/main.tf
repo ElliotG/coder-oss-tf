@@ -113,7 +113,7 @@ provider "helm" {
 }
 
 resource "helm_release" "pg_cluster" {
-  name       = "coder-postgresql"
+  name       = "coder-db"
   namespace  = kubernetes_namespace.coder_namespace.metadata.0.name
   
   repository = "https://charts.bitnami.com/bitnami"
