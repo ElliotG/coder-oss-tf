@@ -36,7 +36,7 @@ module "vpc" {
   }
 
   private_subnet_tags = {
-    "kubernetes.io/cluster/coder" : shared
+    "kubernetes.io/cluster/coder" : "shared"
   }
 }
 
