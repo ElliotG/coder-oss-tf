@@ -88,7 +88,7 @@ provider "kubernetes" {
   host                   = module.eks.cluster_endpoint
   cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
   token                  = data.aws_eks_cluster_auth.cluster_auth.token
-  load_config_file.      = false
+  load_config_file       = false
 }
 
 resource "kubernetes_namespace" "coder_namespace" {
@@ -106,7 +106,7 @@ provider "helm" {
     host                   = module.eks.cluster_endpoint
     cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
     token                  = data.aws_eks_cluster_auth.cluster_auth.token
-    load_config_file.      = false
+    load_config_file       = false
   }
 }
 
