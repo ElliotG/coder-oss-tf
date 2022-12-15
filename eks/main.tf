@@ -75,6 +75,37 @@ resource "aws_eks_cluster" "coder" {
   ]
 }
 
+resource "aws_eks_fargate_profile" "coder" {
+  cluster_name           = aws_eks_cluster.coder.name
+  fargate_profile_name   = "coder"
+  pod_execution_role_arn = aws_iam_role.coder_fargate.arn
+  subnet_ids             = [aws_default_subnet.default_az1.id, aws_default_subnet.default_az2.id]
+
+  selector {
+    namespace = "coder"
+  }
+}
+
+resource "aws_iam_role" "coder_fargate" {
+  name = "eks-fargate-profile-example"
+
+  assume_role_policy = jsonencode({
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "eks-fargate-pods.amazonaws.com"
+      }
+    }]
+    Version = "2012-10-17"
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "coder_AmazonEKSFargatePodExecutionRolePolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSFargatePodExecutionRolePolicy"
+  role       = aws_iam_role.coder_fargate.name
+}
+
 ###############################################################
 # K8s configuration
 ###############################################################
