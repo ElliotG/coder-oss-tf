@@ -161,7 +161,7 @@ coder:
   ]
 
   set {
-    name  = "service.sessionAffinity"
+    name  = "coder.service.sessionAffinity"
     value = "None"
   }  
 
