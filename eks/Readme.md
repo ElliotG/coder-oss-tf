@@ -26,3 +26,6 @@ There's a rare AWS bug that can cause the VPC to fail to be created, but still c
 
 ## The Postgres pod is failing to get it's Persistent Volume created
 If you've tried to apply multiple times, there could be a duplicate volume. There's a wierd bug the way Terraform destroys the Helm chart that can leave the Persistent Volume around. Check to see if the volume already exists and manually delete it.
+
+## Authentication to Kubernetes is failing
+I've found AWS to be a bit unstable with it's auth. I had to use different auth techniques depending on if I was using Spacelift vs Terraform Cloud. I've documented both techniques in main.tf in the comments.
