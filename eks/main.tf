@@ -8,7 +8,7 @@ terraform {
 }
 
 variable "coder_version" {
-    default = "0.13.3"
+    default = "0.12.7"
 }
 
 # Configure the AWS Provider
@@ -148,7 +148,7 @@ resource "helm_release" "coder" {
   namespace  = kubernetes_namespace.coder_namespace.metadata.0.name
   
   # chart      = "https://github.com/coder/coder/releases/download/v${var.coder_version}/coder_helm_${var.coder_version}.tgz"
-  chart        = "./forked.tgz"
+  chart        = "./helm"
 
   values = [
     <<EOT
@@ -171,7 +171,7 @@ coder:
   }
   set {
     name = "coder.image.tag"
-    value = "v0.13.3"
+    value = "v0.12.7"
   }      
 
   depends_on = [

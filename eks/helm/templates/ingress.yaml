@@ -25,7 +25,7 @@ spec:
               service:
                 name: coder
                 port:
-                  name: "http"
+                  name: {{ include "coder.portName" . | quote }}
 
     {{- if .Values.coder.ingress.wildcardHost }}
     - host: {{ include "coder.ingressWildcardHost" . | quote }}
@@ -37,7 +37,7 @@ spec:
               service:
                 name: coder
                 port:
-                  name: "http"
+                  name: {{ include "coder.portName" . | quote }}
     {{- end }}
 
   {{- if .Values.coder.ingress.tls.enable }}
