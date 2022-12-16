@@ -171,7 +171,7 @@ coder:
   }
   set {
     name = "coder.image.tag"
-    value = "v0.0.1"
+    value = "v0.12.7"
   }      
 
   depends_on = [
