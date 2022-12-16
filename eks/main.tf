@@ -8,7 +8,7 @@ terraform {
 }
 
 variable "coder_version" {
-    default = "0.12.7"
+    default = "0.13.3"
 }
 
 # Configure the AWS Provider
@@ -171,7 +171,7 @@ coder:
   }
   set {
     name = "coder.image.tag"
-    value = "v0.12.7"
+    value = "v0.13.3"
   }      
 
   depends_on = [
