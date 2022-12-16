@@ -95,7 +95,12 @@ data "aws_eks_cluster_auth" "cluster_auth" {
 provider "kubernetes" {
   host                   = module.eks.cluster_endpoint
   cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-  token                  = data.aws_eks_cluster_auth.cluster_auth.token
+  #token                  = data.aws_eks_cluster_auth.cluster_auth.token
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.coder.name]
+    command     = "aws"
+  }  
 }
 
 resource "kubernetes_namespace" "coder_namespace" {
@@ -111,7 +116,12 @@ provider "helm" {
   kubernetes {
     host                   = module.eks.cluster_endpoint
     cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-    token                  = data.aws_eks_cluster_auth.cluster_auth.token
+    #token                  = data.aws_eks_cluster_auth.cluster_auth.token
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.coder.name]
+      command     = "aws"
+    }      
   }
 }
 
