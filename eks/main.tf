@@ -88,9 +88,11 @@ module "eks" {
 ###############################################################
 # K8s configuration
 ###############################################################
-data "aws_eks_cluster_auth" "cluster_auth" {
-  name = "coder"
-}
+# If you are having trouble with the exec command, you can try the token technique.
+# Put token  = data.aws_eks_cluster_auth.cluster_auth.token in place of exec
+# data "aws_eks_cluster_auth" "cluster_auth" {
+#   name = "coder"
+# }
 
 provider "kubernetes" {
   host                   = module.eks.cluster_endpoint
@@ -116,7 +118,6 @@ provider "helm" {
   kubernetes {
     host                   = module.eks.cluster_endpoint
     cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-    #token                  = data.aws_eks_cluster_auth.cluster_auth.token
     exec {
       api_version = "client.authentication.k8s.io/v1beta1"
       args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
