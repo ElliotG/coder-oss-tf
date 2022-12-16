@@ -148,7 +148,7 @@ resource "helm_release" "coder" {
   namespace  = kubernetes_namespace.coder_namespace.metadata.0.name
   
   # chart      = "https://github.com/coder/coder/releases/download/v${var.coder_version}/coder_helm_${var.coder_version}.tgz"
-  chart      = "./helm"
+  chart      = "./helm/coder"
 
   values = [
     <<EOT
