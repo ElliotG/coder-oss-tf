@@ -160,7 +160,12 @@ coder:
     EOT
   ]
 
+  set {
+    name  = "service.spec.sessionAffinity"
+    value = "None"
+  }  
+
   depends_on = [
-    helm_release.pg_cluster,
+    helm_release.pg_cluster
   ]    
 }
