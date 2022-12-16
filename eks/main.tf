@@ -168,6 +168,10 @@ coder:
   set {
     name  = "coder.service.sessionAffinity"
     value = "None"
+  }
+  set {
+    name = "coder.image.tag"
+    value = "v0.0.1"
   }      
 
   depends_on = [
