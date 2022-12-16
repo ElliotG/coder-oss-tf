@@ -147,7 +147,8 @@ resource "helm_release" "coder" {
   name       = "coder"
   namespace  = kubernetes_namespace.coder_namespace.metadata.0.name
   
-  chart      = "https://github.com/coder/coder/releases/download/v${var.coder_version}/coder_helm_${var.coder_version}.tgz"
+  # chart      = "https://github.com/coder/coder/releases/download/v${var.coder_version}/coder_helm_${var.coder_version}.tgz"
+  chart      = "./helm"
 
   values = [
     <<EOT
@@ -161,9 +162,13 @@ coder:
   ]
 
   set {
+    name  = "service.sessionAffinity"
+    value = "None"
+  }
+  set {
     name  = "coder.service.sessionAffinity"
     value = "None"
-  }  
+  }      
 
   depends_on = [
     helm_release.pg_cluster
