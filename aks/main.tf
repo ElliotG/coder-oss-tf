@@ -8,7 +8,13 @@ terraform {
 }
 
 variable "coder_version" {
-    default = "0.12.7"
+  default = "0.13.5"
+}
+# Multiple replicas is an enterprise feature:
+# https://coder.com/trial
+variable "coder_replicas" {
+  type    = number
+  default = 1
 }
 
 # Configure the Microsoft Azure Provider
@@ -52,7 +58,7 @@ provider "kubernetes" {
 
 resource "kubernetes_namespace" "coder_namespace" {
   metadata {
-   name = "coder"
+    name = "coder"
   }
 }
 
@@ -69,9 +75,9 @@ provider "helm" {
 }
 
 resource "helm_release" "pg_cluster" {
-  name       = "postgresql"
-  namespace  = kubernetes_namespace.coder_namespace.metadata.0.name
-  
+  name      = "postgresql"
+  namespace = kubernetes_namespace.coder_namespace.metadata.0.name
+
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "postgresql"
 
@@ -79,28 +85,28 @@ resource "helm_release" "pg_cluster" {
     name  = "auth.username"
     value = "coder"
   }
-  
+
   set {
     name  = "auth.password"
     value = "coder"
-  } 
-  
+  }
+
   set {
     name  = "auth.database"
     value = "coder"
-  } 
+  }
 
   set {
     name  = "persistence.size"
     value = "10Gi"
-  }  
+  }
 }
 
 resource "helm_release" "coder" {
-  name       = "coder"
-  namespace  = kubernetes_namespace.coder_namespace.metadata.0.name
-  
-  chart      = "https://github.com/coder/coder/releases/download/v${var.coder_version}/coder_helm_${var.coder_version}.tgz"
+  name      = "coder"
+  namespace = kubernetes_namespace.coder_namespace.metadata.0.name
+
+  chart = "https://github.com/coder/coder/releases/download/v${var.coder_version}/coder_helm_${var.coder_version}.tgz"
 
   values = [
     <<EOT
@@ -115,5 +121,5 @@ coder:
 
   depends_on = [
     helm_release.pg_cluster
-  ]  
+  ]
 }

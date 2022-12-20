@@ -1,14 +1,14 @@
 terraform {
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
       version = "~> 4.0"
     }
   }
 }
 
 variable "coder_version" {
-    default = "0.12.7"
+  default = "0.13.5"
 }
 
 # Configure the AWS Provider
@@ -21,12 +21,12 @@ provider "aws" {
 ###############################################################
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
-  name = "coder"
+  name   = "coder"
 
-  enable_nat_gateway = true
+  enable_nat_gateway   = true
   enable_dns_hostnames = true
 
-  cidr = "10.0.0.0/16"
+  cidr            = "10.0.0.0/16"
   azs             = ["us-east-1a", "us-east-1b", "us-east-1c"]
   private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
   public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
@@ -50,9 +50,9 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
-  cluster_name    = "coder"
-  cluster_version = "1.24"
-  cluster_endpoint_public_access  = true
+  cluster_name                   = "coder"
+  cluster_version                = "1.24"
+  cluster_endpoint_public_access = true
   cluster_addons = {
     coredns = {
       most_recent = true
@@ -102,12 +102,12 @@ provider "kubernetes" {
     api_version = "client.authentication.k8s.io/v1beta1"
     args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
     command     = "aws"
-  }  
+  }
 }
 
 resource "kubernetes_namespace" "coder_namespace" {
   metadata {
-   name = "coder"
+    name = "coder"
   }
 }
 
@@ -122,14 +122,14 @@ provider "helm" {
       api_version = "client.authentication.k8s.io/v1beta1"
       args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
       command     = "aws"
-    }      
+    }
   }
 }
 
 resource "helm_release" "pg_cluster" {
-  name       = "postgresql"
-  namespace  = kubernetes_namespace.coder_namespace.metadata.0.name
-  
+  name      = "postgresql"
+  namespace = kubernetes_namespace.coder_namespace.metadata.0.name
+
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "postgresql"
 
@@ -137,30 +137,30 @@ resource "helm_release" "pg_cluster" {
     name  = "auth.username"
     value = "coder"
   }
-  
+
   set {
     name  = "auth.password"
     value = "coder"
-  } 
-  
+  }
+
   set {
     name  = "auth.database"
     value = "coder"
-  } 
+  }
 
   set {
     name  = "persistence.size"
     value = "10Gi"
-  }   
+  }
 }
 
 resource "helm_release" "coder" {
-  name       = "coder"
-  namespace  = kubernetes_namespace.coder_namespace.metadata.0.name
-  
+  name      = "coder"
+  namespace = kubernetes_namespace.coder_namespace.metadata.0.name
+
   # When v0.13.5 is released, we can unfork the repo
-  # chart      = "https://github.com/coder/coder/releases/download/v${var.coder_version}/coder_helm_${var.coder_version}.tgz"
-  chart        = "./helm"
+  chart = "https://github.com/coder/coder/releases/download/v${var.coder_version}/coder_helm_${var.coder_version}.tgz"
+  # chart = "./helm"
 
   values = [
     <<EOT
@@ -178,11 +178,11 @@ coder:
     value = "None"
   }
   set {
-    name = "coder.image.tag"
+    name  = "coder.image.tag"
     value = "v${var.coder_version}"
-  }      
+  }
 
   depends_on = [
     helm_release.pg_cluster
-  ]    
+  ]
 }

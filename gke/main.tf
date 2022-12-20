@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     google = {
-      source = "hashicorp/google"
+      source  = "hashicorp/google"
       version = "4.3.0"
     }
   }
@@ -12,7 +12,7 @@ variable "region" {
   default = "us-central1"
 }
 variable "coder_version" {
-    default = "0.12.7"
+  default = "0.13.5"
 }
 
 provider "google" {
@@ -36,13 +36,13 @@ resource "google_compute_subnetwork" "vpc_subnet" {
 }
 
 resource "google_container_cluster" "primary" {
-  name     = "${var.project}-gke"
-  location = var.region
-  network    = google_compute_network.vpc_network.name
-  subnetwork = google_compute_subnetwork.vpc_subnet.name
+  name             = "${var.project}-gke"
+  location         = var.region
+  network          = google_compute_network.vpc_network.name
+  subnetwork       = google_compute_subnetwork.vpc_subnet.name
   enable_autopilot = true
   vertical_pod_autoscaling {
-    enabled = true 
+    enabled = true
   }
 }
 
@@ -63,7 +63,7 @@ provider "kubernetes" {
 
 resource "kubernetes_namespace" "coder_namespace" {
   metadata {
-   name = "coder"
+    name = "coder"
   }
 }
 
@@ -82,9 +82,9 @@ provider "helm" {
 
 
 resource "helm_release" "pg_cluster" {
-  name       = "postgresql"
-  namespace  = kubernetes_namespace.coder_namespace.metadata.0.name
-  
+  name      = "postgresql"
+  namespace = kubernetes_namespace.coder_namespace.metadata.0.name
+
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "postgresql"
 
@@ -92,28 +92,28 @@ resource "helm_release" "pg_cluster" {
     name  = "auth.username"
     value = "coder"
   }
-  
+
   set {
     name  = "auth.password"
     value = "coder"
-  } 
-  
+  }
+
   set {
     name  = "auth.database"
     value = "coder"
-  } 
+  }
 
   set {
     name  = "persistence.size"
     value = "10Gi"
-  }  
+  }
 }
 
 resource "helm_release" "coder" {
-  name       = "coder"
-  namespace  = kubernetes_namespace.coder_namespace.metadata.0.name
-  
-  chart      = "https://github.com/coder/coder/releases/download/v${var.coder_version}/coder_helm_${var.coder_version}.tgz"
+  name      = "coder"
+  namespace = kubernetes_namespace.coder_namespace.metadata.0.name
+
+  chart = "https://github.com/coder/coder/releases/download/v${var.coder_version}/coder_helm_${var.coder_version}.tgz"
 
   values = [
     <<EOT
@@ -128,5 +128,5 @@ coder:
 
   depends_on = [
     helm_release.pg_cluster
-  ]    
+  ]
 }
