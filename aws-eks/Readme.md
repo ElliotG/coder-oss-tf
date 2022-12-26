@@ -9,11 +9,23 @@
 
 ## Coder setup Instructions
 
+To get Coder set up initially, we need to give it an admin user and create a kubernetes template for our workspace.
+
 1. Navigate to the DNS of the load balancer (AWS / EC2 / Load balancers).
 2. Create the initial username and password.
-3. Go to Templates / Kubernetes / Create Workspace and give the workspace a name.
-4. Within three minutes, the workspace should launch.
-5. Click the code-server button, and start coding.
+3. Go to Templates, click Develop in Kubernetes, and click use template
+4. Click create template (it will refresh and prompt for 3 more template inputs)
+5. Set var.use_kubeconfig to false 
+6. Set var.namespace to coder
+6. Click create template
+
+With the admin user created and the template imported, we are ready to launch a workspace based on that template.
+
+1. Click create workspace from the kubernetes template (templates/kubernetes/workspace)
+2. Give it a name and click create
+3. Within three minutes, the workspace should launch.
+
+From there, you can click the Terminal button to get an interactive session in the k8s container, or you can click code-server to open up a VSCode window and start coding!
 
 ## Why grant the Terraform user Console Access?
 Most of the kubernetes resources can only be managed if granted permissions via the kubernetes cluster role binding. The (AWS docs)[https://docs.aws.amazon.com/eks/latest/userguide/add-user-role.html] can step you through how to do this. It cannot be granted via IAM alone, except for the IAM user that originally created the EKS cluster. For this reason, it's easiest to grant the Terraform user console access so you can view the properties of the cluster. In production, you'd want to do this differently.
