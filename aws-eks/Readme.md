@@ -4,7 +4,7 @@
 2. Create an IAM User with the Administrator policy. Generate access keys and grant it console access. See bottom for notes.
 3. Fork this repo and set it up with [spacelift.io](https://spacelift.io/) or equivalent.
 4. Set [AWS_ACCESS_KEY_ID](https://registry.terraform.io/providers/hashicorp/aws/latest/docs) and [AWS_SECRET_ACCESS_KEY](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
-5. Make sure to set the directory to eks
+5. Make sure to set the directory to aws-eks/
 6. Run and apply the Terraform (takes 20-30 minutes).
 
 Note: EKS is unstable, and I had more problems with EKS than the rest combined. I've seen weird, unreproducible bugs that required deleting and trying again.
