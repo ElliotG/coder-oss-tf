@@ -46,10 +46,9 @@ resource "kubernetes_namespace" "coder_namespace" {
 ###############################################################
 provider "helm" {
   kubernetes {
-    host                   = azurerm_kubernetes_cluster.coder.kube_config.0.host
-    client_certificate     = base64decode(azurerm_kubernetes_cluster.coder.kube_config.0.client_certificate)
-    client_key             = base64decode(azurerm_kubernetes_cluster.coder.kube_config.0.client_key)
-    cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.coder.kube_config.0.cluster_ca_certificate)
+    host                   = digitalocean_kubernetes_cluster.coder.endpoint
+    token                  = digitalocean_kubernetes_cluster.coder.kube_config[0].token
+    cluster_ca_certificate = base64decode(digitalocean_kubernetes_cluster.coder.kube_config[0].cluster_ca_certificate)
   }
 }
 
