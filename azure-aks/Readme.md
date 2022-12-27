@@ -3,7 +3,7 @@
 1. Create an [Azure Account](https://portal.azure.com/) and [a service principal](https://docs.spacelift.io/integrations/cloud-providers/azure#create-a-service-principal).
 2. Fork this repo and set it up with [spacelift.io](https://spacelift.io/) or equivalent
 3. Set ARM_CLIENT_ID, ARM_CLIENT_SECRET, ARM_SUBSCRIPTION_ID, ARM_TENANT_ID using the values when you created the service principal.
-4. Make sure to set the directory to aks
+4. Make sure to set the directory to azure-aks/
 4. Run and apply the Terraform (took me 5 minutes)
 
 ## Coder setup Instructions
