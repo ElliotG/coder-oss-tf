@@ -5,7 +5,7 @@
 2. Fork this repo and set it up with [spacelift.io](https://spacelift.io/) or equivalent.
 3. Set [AWS_ACCESS_KEY_ID](https://registry.terraform.io/providers/hashicorp/aws/latest/docs) and [AWS_SECRET_ACCESS_KEY](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
 4. Make sure to set the directory to eks
-4. Run and apply the Terraform (takes 15 minutes).
+4. Run and apply the Terraform (takes 20-30 minutes).
 
 ## Coder setup Instructions
 
