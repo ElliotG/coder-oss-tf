@@ -25,7 +25,6 @@ hardware        = "shared"
 default_pool_size = 1
     
 public_service_endpoint  = "true"
-private_service_endpoint = "true"
 }
 
 ###############################################################
