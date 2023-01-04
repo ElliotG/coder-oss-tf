@@ -9,7 +9,6 @@ terraform {
 
 # Configure the IBM Provider
 provider "ibm" {
-  region = "us-east"
 }
 
 
@@ -17,17 +16,17 @@ variable "coder_version" {
   default = "0.13.6"
 }
 
-# resource "digitalocean_kubernetes_cluster" "coder" {
-#   name   = "coder"
-#   region = "nyc1"
-#   version = "1.25.4-do.0"
+resource ibm_container_cluster "tfcluster" {
+name            = "coder"
+datacenter      = "dal10"
+machine_type    = "b3c.4x16" # ibmcloud ks flavors --zone dal10
+hardware        = "shared"
 
-#   node_pool {
-#     name       = "default"
-#     size       = "s-2vcpu-4gb"
-#     node_count = 1
-#   }
-# }
+default_pool_size = 1
+    
+public_service_endpoint  = "true"
+private_service_endpoint = "true"
+}
 
 ###############################################################
 # K8s configuration
