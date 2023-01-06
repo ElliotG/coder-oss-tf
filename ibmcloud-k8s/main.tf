@@ -22,7 +22,6 @@ variable "db_password" {
 ###############################################################
 # Set IC_API_KEY
 provider "ibm" {
-  generation = 2
 }
 
 resource "ibm_is_vpc" "coder" {
@@ -39,7 +38,7 @@ resource "ibm_is_subnet" "coder" {
 resource "ibm_container_vpc_cluster" "coder" {
   name              = "coder"
   vpc_id            = ibm_is_vpc.coder.id
-  flavor            = "bx2-4x16"
+  flavor            = "bx2.4x16"
   worker_count      = 1
 
   zones {
