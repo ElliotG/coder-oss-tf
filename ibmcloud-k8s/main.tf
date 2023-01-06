@@ -18,7 +18,7 @@ variable "db_password" {
 }
 
 ###############################################################
-# K8s configuration
+# Networking configuration
 ###############################################################
 # Set IC_API_KEY
 provider "ibm" {
@@ -41,6 +41,13 @@ resource "ibm_is_public_gateway" "coder" {
   zone = "us-south-1"
 }
 
+resource "ibm_is_subnet_public_gateway_attachment" "coder" {
+  subnet                = ibm_is_subnet.coder.id
+  public_gateway         = ibm_is_public_gateway.coder.id
+}
+###############################################################
+# K8s configuration
+###############################################################
 # If the node gets stuck on waiting for the VPE Gateway, then
 # open the cloud shell and run:
 # ~$ ibmcloud ks cluster master refresh -c coder
@@ -56,23 +63,9 @@ resource "ibm_container_vpc_cluster" "coder" {
   }
 
   depends_on = [
-    ibm_is_public_gateway.coder
+    ibm_is_subnet_public_gateway_attachment.coder
   ]
 }
-
-
-# resource ibm_container_cluster "tfcluster" {
-# name            = "coder"
-# datacenter      = "dal10"
-# machine_type    = "b3c.4x16" # ibmcloud ks flavors --zone dal10
-# hardware        = "shared"
-# public_vlan_id  = ibm_network_vlan.public.id
-# private_vlan_id = ibm_network_vlan.private.id
-
-# default_pool_size = 1
-    
-# public_service_endpoint  = "true"
-# }
 
 data "ibm_container_cluster_config" "coder" {
   cluster_name_id = ibm_container_vpc_cluster.coder.name
@@ -114,8 +107,6 @@ resource "helm_release" "pg_cluster" {
 
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "postgresql"
-
-  timeout = 600
 
   # The default IBM storage class mounts the directory in as
   # owned by nobody, causes Postgres to fail. Simplest fix is
