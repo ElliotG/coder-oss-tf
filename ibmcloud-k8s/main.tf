@@ -35,6 +35,12 @@ resource "ibm_is_subnet" "coder" {
   total_ipv4_address_count = 256
 }
 
+resource "ibm_is_public_gateway" "coder" {
+  name = "coder-gateway"
+  vpc  = ibm_is_vpc.coder.id
+  zone = "us-south-1"
+}
+
 # If the node gets stuck on waiting for the VPE Gateway, then
 # open the cloud shell and run:
 # ~$ ibmcloud ks cluster master refresh -c coder
@@ -48,7 +54,12 @@ resource "ibm_container_vpc_cluster" "coder" {
     subnet_id = ibm_is_subnet.coder.id
     name      = ibm_is_subnet.coder.zone
   }
+
+  depends_on = [
+    ibm_is_public_gateway.coder
+  ]
 }
+
 
 # resource ibm_container_cluster "tfcluster" {
 # name            = "coder"
