@@ -38,7 +38,7 @@ public_service_endpoint  = "true"
 # }
 
 data "ibm_container_cluster_config" "cluster" {
-  cluster_name_id = ibm_container_cluster.tfcluster
+  cluster_name_id = ibm_container_cluster.tfcluster.name
   admin           = true
 }
 
