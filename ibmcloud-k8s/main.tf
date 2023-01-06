@@ -73,17 +73,17 @@ resource "helm_release" "pg_cluster" {
   chart      = "postgresql"
 
   set {
-    name  = "livenessProbe.initialDelaySeconds"
+    name  = "primary.livenessProbe.initialDelaySeconds"
     value = "200"
   }
 
   set {
-    name  = "readinessProbe.initialDelaySeconds"
+    name  = "primary.readinessProbe.initialDelaySeconds"
     value = "200"
   }
 
   set {
-    name  = "persistence.storageClass"
+    name  = "primary.persistence.storageClass"
     value = "ibmc-file-gold-delayed"
   }    
 
