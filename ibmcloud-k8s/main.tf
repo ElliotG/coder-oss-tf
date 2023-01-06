@@ -22,35 +22,47 @@ variable "db_password" {
 ###############################################################
 # Set IC_API_KEY
 provider "ibm" {
+  generation = 2
 }
 
-resource "ibm_network_vlan" "public" {
-  name            = "coder_public_vlan"
-  datacenter      = "dal10"
-  type            = "PUBLIC"
+resource "ibm_is_vpc" "coder" {
+  name = "coder_vpc"
 }
 
-resource "ibm_network_vlan" "private" {
-  name            = "coder_private_vlan"
-  datacenter      = "dal10"
-  type            = "PRIVATE"
+resource "ibm_is_subnet" "coder" {
+  name                     = "coder_subnet"
+  vpc                      = ibm_is_vpc.coder.id
+  zone                     = "us-south-1"
+  total_ipv4_address_count = 256
 }
 
-resource ibm_container_cluster "tfcluster" {
-name            = "coder"
-datacenter      = "dal10"
-machine_type    = "b3c.4x16" # ibmcloud ks flavors --zone dal10
-hardware        = "shared"
-public_vlan_id  = ibm_network_vlan.public.id
-private_vlan_id = ibm_network_vlan.private.id
+resource "ibm_container_vpc_cluster" "coder" {
+  name              = "mycluster"
+  vpc_id            = ibm_is_vpc.coder.id
+  flavor            = "bx2-4x16"
+  worker_count      = 1
 
-default_pool_size = 1
+  zones {
+    subnet_id = ibm_is_subnet.coder.id
+    name      = ibm_is_subnet.coder.zone
+  }
+}
+
+# resource ibm_container_cluster "tfcluster" {
+# name            = "coder"
+# datacenter      = "dal10"
+# machine_type    = "b3c.4x16" # ibmcloud ks flavors --zone dal10
+# hardware        = "shared"
+# public_vlan_id  = ibm_network_vlan.public.id
+# private_vlan_id = ibm_network_vlan.private.id
+
+# default_pool_size = 1
     
-public_service_endpoint  = "true"
-}
+# public_service_endpoint  = "true"
+# }
 
 data "ibm_container_cluster_config" "coder" {
-  cluster_name_id = ibm_container_cluster.tfcluster.name
+  cluster_name_id = ibm_container_vpc_cluster.coder.name
   admin           = true
 }
 
