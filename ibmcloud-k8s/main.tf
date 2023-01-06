@@ -3,11 +3,7 @@ terraform {
     ibm = {
       source = "IBM-Cloud/ibm"
       version = ">= 1.12.0"
-    }
-    kubernetes = {
-      source  = "registry.terraform.io/hashicorp/kubernetes"
-      version = ">= 2.16.1"
-    }    
+    }  
   }
 }
 
@@ -79,6 +75,9 @@ provider "kubernetes" {
   host                   = data.ibm_container_cluster_config.coder.host
   token                  = data.ibm_container_cluster_config.coder.token
   cluster_ca_certificate = data.ibm_container_cluster_config.coder.ca_certificate
+  exec {
+    command = "ls"
+  }
 }
 
 resource "kubernetes_namespace" "coder_namespace" {
