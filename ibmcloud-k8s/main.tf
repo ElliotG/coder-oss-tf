@@ -80,10 +80,6 @@ provider "kubernetes" {
 resource "kubernetes_namespace" "coder_namespace" {
   metadata {
     name = "coder"
-
-    labels = {
-      ignoreme = data.ibm_container_cluster_config.coder.host
-    }
   }
 }
 
