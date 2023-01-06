@@ -41,7 +41,7 @@ resource "ibm_is_subnet" "coder" {
 resource "ibm_container_vpc_cluster" "coder" {
   name              = "coder"
   vpc_id            = ibm_is_vpc.coder.id
-  flavor            = "bx2.2x8" # ibmcloud ks flavors --zone us-south-1
+  flavor            = "bx2.4x16" # ibmcloud ks flavors --zone us-south-1
   worker_count      = 2
 
   zones {
