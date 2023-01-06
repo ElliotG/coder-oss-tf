@@ -31,16 +31,16 @@ public_service_endpoint  = "true"
 ###############################################################
 # K8s configuration
 ###############################################################
-data "ibm_container_cluster_config" "cluster_foo" {
+data "ibm_container_cluster_config" "coder" {
   cluster_name_id = ibm_container_cluster.tfcluster.name
   admin           = true
 }
 
 provider "kubernetes" {
-  host                   = data.ibm_container_cluster_config.tfcluster.host
-  client_certificate     = data.ibm_container_cluster_config.tfcluster.admin_certificate
-  client_key             = data.ibm_container_cluster_config.tfcluster.admin_key
-  cluster_ca_certificate = data.ibm_container_cluster_config.tfcluster.ca_certificate
+  host                   = data.ibm_container_cluster_config.coder.host
+  client_certificate     = data.ibm_container_cluster_config.coder.admin_certificate
+  client_key             = data.ibm_container_cluster_config.coder.admin_key
+  cluster_ca_certificate = data.ibm_container_cluster_config.coder.ca_certificate
 }
 
 resource "kubernetes_namespace" "coder_namespace" {
