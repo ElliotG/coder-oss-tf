@@ -24,11 +24,25 @@ variable "db_password" {
 provider "ibm" {
 }
 
+resource "ibm_network_vlan" "public" {
+  name            = "coder_public_vlan"
+  datacenter      = "dal10"
+  type            = "PUBLIC"
+}
+
+resource "ibm_network_vlan" "private" {
+  name            = "coder_private_vlan"
+  datacenter      = "dal10"
+  type            = "PRIVATE"
+}
+
 resource ibm_container_cluster "tfcluster" {
 name            = "coder"
 datacenter      = "dal10"
 machine_type    = "b3c.4x16" # ibmcloud ks flavors --zone dal10
 hardware        = "shared"
+public_vlan_id  = ibm_network_vlan.public.id
+private_vlan_id = ibm_network_vlan.private.id
 
 default_pool_size = 1
     
