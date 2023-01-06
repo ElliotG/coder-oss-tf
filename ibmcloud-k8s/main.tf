@@ -75,10 +75,6 @@ provider "kubernetes" {
   host                   = data.ibm_container_cluster_config.coder.host
   token                  = data.ibm_container_cluster_config.coder.token
   cluster_ca_certificate = data.ibm_container_cluster_config.coder.ca_certificate
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command = "ls"
-  }
 }
 
 resource "kubernetes_namespace" "coder_namespace" {
