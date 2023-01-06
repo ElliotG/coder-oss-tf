@@ -26,18 +26,18 @@ provider "ibm" {
 }
 
 resource "ibm_is_vpc" "coder" {
-  name = "coder_vpc"
+  name = "codervpc"
 }
 
 resource "ibm_is_subnet" "coder" {
-  name                     = "coder_subnet"
+  name                     = "codersubnet"
   vpc                      = ibm_is_vpc.coder.id
   zone                     = "us-south-1"
   total_ipv4_address_count = 256
 }
 
 resource "ibm_container_vpc_cluster" "coder" {
-  name              = "mycluster"
+  name              = "coder"
   vpc_id            = ibm_is_vpc.coder.id
   flavor            = "bx2-4x16"
   worker_count      = 1
