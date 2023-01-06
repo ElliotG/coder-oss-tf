@@ -35,11 +35,14 @@ resource "ibm_is_subnet" "coder" {
   total_ipv4_address_count = 256
 }
 
+# If the node gets stuck on waiting for the VPE Gateway, then
+# open the cloud shell and run:
+# ~$ ibmcloud ks cluster master refresh -c coder
 resource "ibm_container_vpc_cluster" "coder" {
   name              = "coder"
   vpc_id            = ibm_is_vpc.coder.id
-  flavor            = "bx2.4x16"
-  worker_count      = 1
+  flavor            = "bx2.2x8" # ibmcloud ks flavors --zone us-south-1
+  worker_count      = 2
 
   zones {
     subnet_id = ibm_is_subnet.coder.id
@@ -70,8 +73,7 @@ data "ibm_container_cluster_config" "coder" {
 # ~$ kubectl get pods -n coder
 provider "kubernetes" {
   host                   = data.ibm_container_cluster_config.coder.host
-  client_certificate     = data.ibm_container_cluster_config.coder.admin_certificate
-  client_key             = data.ibm_container_cluster_config.coder.admin_key
+  token                  = data.ibm_container_cluster_config.coder.token
   cluster_ca_certificate = data.ibm_container_cluster_config.coder.ca_certificate
 }
 
@@ -87,8 +89,7 @@ resource "kubernetes_namespace" "coder_namespace" {
 provider "helm" {
   kubernetes {
     host                   = data.ibm_container_cluster_config.coder.host
-    client_certificate     = data.ibm_container_cluster_config.coder.admin_certificate
-    client_key             = data.ibm_container_cluster_config.coder.admin_key
+    token                  = data.ibm_container_cluster_config.coder.token
     cluster_ca_certificate = data.ibm_container_cluster_config.coder.ca_certificate
   }
 }
@@ -100,6 +101,8 @@ resource "helm_release" "pg_cluster" {
 
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "postgresql"
+
+  timeout = 600
 
   # The default IBM storage class mounts the directory in as
   # owned by nobody, causes Postgres to fail. Simplest fix is
