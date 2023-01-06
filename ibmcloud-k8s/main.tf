@@ -72,11 +72,28 @@ resource "helm_release" "pg_cluster" {
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "postgresql"
 
+  set {
+    name  = "livenessProbe.initialDelaySeconds"
+    value = "200"
+  }
+
+  set {
+    name  = "readinessProbe.initialDelaySeconds"
+    value = "200"
+  }
+
+  set {
+    name  = "persistence.storageClass"
+    value = "ibmc-file-gold-delayed"
+  }    
+
   # https://github.com/bitnami/charts/issues/1210
   set {
     name  = "volumePermissions.enabled"
     value = "true"
   }
+
+
 
   set {
     name  = "auth.username"
