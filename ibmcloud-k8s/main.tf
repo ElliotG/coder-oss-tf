@@ -90,7 +90,8 @@ resource "kubernetes_namespace" "coder_namespace" {
 provider "helm" {
   kubernetes {
     host                   = data.ibm_container_cluster_config.coder.host
-    token                  = data.ibm_container_cluster_config.coder.token
+    client_certificate     = data.ibm_container_cluster_config.coder.admin_certificate
+    client_key             = data.ibm_container_cluster_config.coder.admin_key
     cluster_ca_certificate = data.ibm_container_cluster_config.coder.ca_certificate
   }
 }
