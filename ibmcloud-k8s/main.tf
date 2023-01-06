@@ -31,19 +31,11 @@ public_service_endpoint  = "true"
 ###############################################################
 # K8s configuration
 ###############################################################
-# provider "kubernetes" {
-#   host                   = digitalocean_kubernetes_cluster.coder.endpoint
-#   token                  = digitalocean_kubernetes_cluster.coder.kube_config[0].token
-#   cluster_ca_certificate = base64decode(digitalocean_kubernetes_cluster.coder.kube_config[0].cluster_ca_certificate)
-# }
-
-data "ibm_container_cluster_config" "cluster" {
-  cluster_name_id = ibm_container_cluster.tfcluster.name
-  admin           = true
-}
-
 provider "kubernetes" {
-  config_path      = data.ibm_container_cluster_config.cluster.config_file_path
+  host                   = data.ibm_container_cluster_config.cluster_foo.host
+  client_certificate     = data.ibm_container_cluster_config.cluster_foo.admin_certificate
+  client_key             = data.ibm_container_cluster_config.cluster_foo.admin_key
+  cluster_ca_certificate = data.ibm_container_cluster_config.cluster_foo.ca_certificate
 }
 
 resource "kubernetes_namespace" "coder_namespace" {
