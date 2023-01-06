@@ -111,7 +111,7 @@ resource "helm_release" "pg_cluster" {
   # https://github.com/bitnami/charts/issues/4737
   set {
     name  = "primary.persistence.storageClass"
-    value = "ibmc-block-custom"
+    value = "ibmc-vpc-block-custom"
   }    
 
   set {
