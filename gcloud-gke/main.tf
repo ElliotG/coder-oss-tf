@@ -15,14 +15,22 @@ variable "coder_version" {
   default = "0.13.6"
 }
 
+# Change this password away from the default if you are doing
+# anything more than a testing stack.
+variable "db_password" {
+  default = "coder"
+}
+
+
+###############################################################
+# Set up the Networking Components
+###############################################################
+# Set GOOGLE_CREDENTIALS
 provider "google" {
   region  = var.region
   project = var.project
 }
 
-###############################################################
-# Set up the Networking Components
-###############################################################
 resource "google_compute_network" "vpc_network" {
   name                    = "gke-vpc-network"
   auto_create_subnetworks = false
@@ -35,6 +43,9 @@ resource "google_compute_subnetwork" "vpc_subnet" {
   network       = google_compute_network.vpc_network.id
 }
 
+###############################################################
+# K8s configuration
+###############################################################
 resource "google_container_cluster" "primary" {
   name             = "${var.project}-gke"
   location         = var.region
@@ -46,9 +57,6 @@ resource "google_container_cluster" "primary" {
   }
 }
 
-###############################################################
-# K8s configuration
-###############################################################
 data "google_client_config" "default" {
   depends_on = [google_container_cluster.primary]
 }
@@ -95,7 +103,7 @@ resource "helm_release" "pg_cluster" {
 
   set {
     name  = "auth.password"
-    value = "coder"
+    value = "${var.db_password}"
   }
 
   set {
@@ -120,7 +128,7 @@ resource "helm_release" "coder" {
 coder:
   env:
     - name: CODER_PG_CONNECTION_URL
-      value: "postgres://coder:coder@postgresql.coder.svc.cluster.local:5432/coder?sslmode=disable"
+      value: "postgres://coder:${var.db_password}@${helm_release.pg_cluster.name}.coder.svc.cluster.local:5432/coder?sslmode=disable"
     - name: CODER_EXPERIMENTAL
       value: "true"
     EOT
