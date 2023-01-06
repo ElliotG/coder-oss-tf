@@ -79,7 +79,11 @@ provider "kubernetes" {
 
 resource "kubernetes_namespace" "coder_namespace" {
   metadata {
-    name = data.ibm_container_cluster_config.coder.cluster_name_id
+    name = "coder"
+
+    labels = {
+      ignoreme = data.ibm_container_cluster_config.coder.host
+    }
   }
 }
 
