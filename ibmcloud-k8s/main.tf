@@ -66,7 +66,7 @@ provider "helm" {
 
 # kubectl logs postgresql-0 -n coder
 resource "helm_release" "pg_cluster" {
-  name      = "postgresql"
+  name      = "postgresql2"
   namespace = kubernetes_namespace.coder_namespace.metadata.0.name
 
   repository = "https://charts.bitnami.com/bitnami"
@@ -127,7 +127,7 @@ resource "helm_release" "coder" {
 coder:
   env:
     - name: CODER_PG_CONNECTION_URL
-      value: "postgres://coder:coder@postgresql.coder.svc.cluster.local:5432/coder?sslmode=disable"
+      value: "postgres://coder:coder@postgresql2.coder.svc.cluster.local:5432/coder?sslmode=disable"
     - name: CODER_EXPERIMENTAL
       value: "true"
     EOT
