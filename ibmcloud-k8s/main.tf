@@ -16,6 +16,12 @@ variable "coder_version" {
   default = "0.13.6"
 }
 
+# Change this password away from the default if you are doing
+# anything more than a testing stack.
+variable "db_password" {
+  default = "coder"
+}
+
 resource ibm_container_cluster "tfcluster" {
 name            = "coder"
 datacenter      = "dal10"
@@ -66,34 +72,20 @@ provider "helm" {
 
 # kubectl logs postgresql-0 -n coder
 resource "helm_release" "pg_cluster" {
-  name      = "postgresql2"
+  name      = "postgresql"
   namespace = kubernetes_namespace.coder_namespace.metadata.0.name
 
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "postgresql"
 
-  # set {
-  #   name  = "primary.livenessProbe.initialDelaySeconds"
-  #   value = "200"
-  # }
-
-  # set {
-  #   name  = "primary.readinessProbe.initialDelaySeconds"
-  #   value = "200"
-  # }
-
+  # The default IBM storage class mounts the directory in as
+  # owned by nobody, causes Postgres to fail. Simplest fix is
+  # to use a different storage type.
+  # https://github.com/bitnami/charts/issues/4737
   set {
     name  = "primary.persistence.storageClass"
     value = "ibmc-block-custom"
   }    
-
-  # https://github.com/bitnami/charts/issues/1210
-  # set {
-  #   name  = "volumePermissions.enabled"
-  #   value = "true"
-  # }
-
-
 
   set {
     name  = "auth.username"
@@ -102,7 +94,7 @@ resource "helm_release" "pg_cluster" {
 
   set {
     name  = "auth.password"
-    value = "coder"
+    value = "${var.db_password}"
   }
 
   set {
@@ -127,7 +119,7 @@ resource "helm_release" "coder" {
 coder:
   env:
     - name: CODER_PG_CONNECTION_URL
-      value: "postgres://coder:coder@postgresql2.coder.svc.cluster.local:5432/coder?sslmode=disable"
+      value: "postgres://coder:${var.db_password}@${helm_release.pg_cluster.name}.coder.svc.cluster.local:5432/coder?sslmode=disable"
     - name: CODER_EXPERIMENTAL
       value: "true"
     EOT

@@ -11,6 +11,12 @@ variable "coder_version" {
   default = "0.13.6"
 }
 
+# Change this password away from the default if you are doing
+# anything more than a testing stack.
+variable "db_password" {
+  default = "coder"
+}
+
 # Configure the Microsoft Azure Provider
 provider "azurerm" {
   features {}
@@ -82,7 +88,7 @@ resource "helm_release" "pg_cluster" {
 
   set {
     name  = "auth.password"
-    value = "coder"
+    value = "${var.db_password}"
   }
 
   set {
@@ -107,7 +113,7 @@ resource "helm_release" "coder" {
 coder:
   env:
     - name: CODER_PG_CONNECTION_URL
-      value: "postgres://coder:coder@postgresql.coder.svc.cluster.local:5432/coder?sslmode=disable"
+      value: "postgres://coder:${var.db_password}@${helm_release.pg_cluster.name}.coder.svc.cluster.local:5432/coder?sslmode=disable"
     - name: CODER_EXPERIMENTAL
       value: "true"
     EOT
