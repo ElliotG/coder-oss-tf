@@ -27,6 +27,7 @@ default_pool_size = 1
 public_service_endpoint  = "true"
 }
 
+
 ###############################################################
 # K8s configuration
 ###############################################################
@@ -36,11 +37,20 @@ public_service_endpoint  = "true"
 #   cluster_ca_certificate = base64decode(digitalocean_kubernetes_cluster.coder.kube_config[0].cluster_ca_certificate)
 # }
 
-# resource "kubernetes_namespace" "coder_namespace" {
-#   metadata {
-#     name = "coder"
-#   }
-# }
+data "ibm_container_cluster_config" "cluster" {
+  cluster_name_id = ibm_container_cluster.tfcluster
+  admin           = true
+}
+
+provider "kubernetes" {
+  config_path      = data.ibm_container_cluster_config.cluster.config_file_path
+}
+
+resource "kubernetes_namespace" "coder_namespace" {
+  metadata {
+    name = "coder"
+  }
+}
 
 ###############################################################
 # Coder configuration
