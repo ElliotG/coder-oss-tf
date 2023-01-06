@@ -7,9 +7,6 @@ terraform {
   }
 }
 
-provider "digitalocean" {
-}
-
 variable "coder_version" {
   default = "0.13.6"
 }
@@ -18,6 +15,13 @@ variable "coder_version" {
 # anything more than a testing stack.
 variable "db_password" {
   default = "coder"
+}
+
+###############################################################
+# K8s configuration
+###############################################################
+# Set DIGITALOCEAN_TOKEN
+provider "digitalocean" {
 }
 
 resource "digitalocean_kubernetes_cluster" "coder" {
@@ -32,9 +36,6 @@ resource "digitalocean_kubernetes_cluster" "coder" {
   }
 }
 
-###############################################################
-# K8s configuration
-###############################################################
 provider "kubernetes" {
   host                   = digitalocean_kubernetes_cluster.coder.endpoint
   token                  = digitalocean_kubernetes_cluster.coder.kube_config[0].token

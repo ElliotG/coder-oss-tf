@@ -17,14 +17,13 @@ variable "db_password" {
   default = "coder"
 }
 
-# Configure the AWS Provider
-provider "aws" {
-  region = "us-east-1"
-}
-
 ###############################################################
 # VPC configuration
 ###############################################################
+# Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
+provider "aws" {
+  region = "us-east-1"
+}
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
   name   = "coder"

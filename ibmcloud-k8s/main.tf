@@ -7,11 +7,6 @@ terraform {
   }
 }
 
-# Configure the IBM Provider
-provider "ibm" {
-}
-
-
 variable "coder_version" {
   default = "0.13.6"
 }
@@ -20,6 +15,13 @@ variable "coder_version" {
 # anything more than a testing stack.
 variable "db_password" {
   default = "coder"
+}
+
+###############################################################
+# K8s configuration
+###############################################################
+# Set IC_API_KEY
+provider "ibm" {
 }
 
 resource ibm_container_cluster "tfcluster" {
@@ -33,10 +35,6 @@ default_pool_size = 1
 public_service_endpoint  = "true"
 }
 
-
-###############################################################
-# K8s configuration
-###############################################################
 data "ibm_container_cluster_config" "coder" {
   cluster_name_id = ibm_container_cluster.tfcluster.name
   admin           = true

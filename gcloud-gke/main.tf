@@ -21,14 +21,16 @@ variable "db_password" {
   default = "coder"
 }
 
+
+###############################################################
+# Set up the Networking Components
+###############################################################
+# Set GOOGLE_CREDENTIALS
 provider "google" {
   region  = var.region
   project = var.project
 }
 
-###############################################################
-# Set up the Networking Components
-###############################################################
 resource "google_compute_network" "vpc_network" {
   name                    = "gke-vpc-network"
   auto_create_subnetworks = false
@@ -41,6 +43,9 @@ resource "google_compute_subnetwork" "vpc_subnet" {
   network       = google_compute_network.vpc_network.id
 }
 
+###############################################################
+# K8s configuration
+###############################################################
 resource "google_container_cluster" "primary" {
   name             = "${var.project}-gke"
   location         = var.region
@@ -52,9 +57,6 @@ resource "google_container_cluster" "primary" {
   }
 }
 
-###############################################################
-# K8s configuration
-###############################################################
 data "google_client_config" "default" {
   depends_on = [google_container_cluster.primary]
 }

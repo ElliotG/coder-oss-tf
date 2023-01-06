@@ -17,7 +17,10 @@ variable "db_password" {
   default = "coder"
 }
 
-# Configure the Microsoft Azure Provider
+###############################################################
+# K8s configuration
+###############################################################
+# Set ARM_CLIENT_ID, ARM_CLIENT_SECRET, ARM_SUBSCRIPTION_ID, ARM_TENANT_ID
 provider "azurerm" {
   features {}
 }
@@ -44,9 +47,6 @@ resource "azurerm_kubernetes_cluster" "coder" {
   }
 }
 
-###############################################################
-# K8s configuration
-###############################################################
 provider "kubernetes" {
   host                   = azurerm_kubernetes_cluster.coder.kube_config.0.host
   username               = azurerm_kubernetes_cluster.coder.kube_config.0.username
