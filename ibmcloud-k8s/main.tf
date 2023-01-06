@@ -36,6 +36,8 @@ data "ibm_container_cluster_config" "coder" {
   admin           = true
 }
 
+# To authenticate with kubectl, use IBM Cloud Shell
+# ~$ ibmcloud ks cluster config --cluster coder
 provider "kubernetes" {
   host                   = data.ibm_container_cluster_config.coder.host
   client_certificate     = data.ibm_container_cluster_config.coder.admin_certificate
@@ -61,12 +63,19 @@ provider "helm" {
   }
 }
 
+# ~$ kubectl get pods -n coder
+
 resource "helm_release" "pg_cluster" {
   name      = "postgresql"
   namespace = kubernetes_namespace.coder_namespace.metadata.0.name
 
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "postgresql"
+
+  set {
+    name  = "volumePermissions.enable"
+    value = "true"
+  }
 
   set {
     name  = "auth.username"
