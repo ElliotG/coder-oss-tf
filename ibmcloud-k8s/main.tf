@@ -4,6 +4,10 @@ terraform {
       source = "IBM-Cloud/ibm"
       version = ">= 1.12.0"
     }
+    kubernetes = {
+      source  = "registry.terraform.io/hashicorp/kubernetes"
+      version = ">= 2.16.1"
+    }    
   }
 }
 
