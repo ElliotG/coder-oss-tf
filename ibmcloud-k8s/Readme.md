@@ -3,7 +3,7 @@
 1. Fork this repo and set it up with [spacelift.io](https://spacelift.io/) or equivalent
 2. Create an [API Key](https://cloud.ibm.com/docs/account?topic=account-userapikey&interface=ui) and set it as IC_API_KEY
 3. Make sure to set the root directory to ibmcloud-k8s/
-4. Run and apply the Terraform (took me 10 minutes)
+4. Run and apply the Terraform (took me 75 minutes)
 
 ## Coder setup Instructions
 
