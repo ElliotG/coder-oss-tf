@@ -50,7 +50,7 @@ resource "local_file" "kubeconfig" {
 # It does make it easy to download the kubeconfig file, so I recommend checking out
 # Lens: https://app.k8slens.dev/
 provider "kubernetes" {
-  config_path = data.local_file.test.filename
+  config_path = local_file.kubeconfig.filename
 }
 
 resource "kubernetes_namespace" "coder_namespace" {
