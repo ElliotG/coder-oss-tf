@@ -46,9 +46,7 @@ resource "local_file" "kubeconfig" {
   filename = "config.yml"
 }
 
-# OVHCloud does not come with a built-in dashboard, nor does it deploy one.
-# It does make it easy to download the kubeconfig file, so I recommend checking out
-# Lens: https://app.k8slens.dev/
+# 
 provider "kubernetes" {
   config_path = local_file.kubeconfig.filename
 }
@@ -62,59 +60,59 @@ resource "kubernetes_namespace" "coder_namespace" {
 ###############################################################
 # Coder configuration
 ###############################################################
-provider "helm" {
-  kubernetes {
-    config_path = local_file.kubeconfig.filename
-  }
-}
+# provider "helm" {
+#   kubernetes {
+#     config_path = local_file.kubeconfig.filename
+#   }
+# }
 
-# kubectl logs postgresql-0 -n coder
-resource "helm_release" "pg_cluster" {
-  name      = "postgresql"
-  namespace = kubernetes_namespace.coder_namespace.metadata.0.name
+# # kubectl logs postgresql-0 -n coder
+# resource "helm_release" "pg_cluster" {
+#   name      = "postgresql"
+#   namespace = kubernetes_namespace.coder_namespace.metadata.0.name
 
-  repository = "https://charts.bitnami.com/bitnami"
-  chart      = "postgresql"
+#   repository = "https://charts.bitnami.com/bitnami"
+#   chart      = "postgresql"
 
-  set {
-    name  = "auth.username"
-    value = "coder"
-  }
+#   set {
+#     name  = "auth.username"
+#     value = "coder"
+#   }
 
-  set {
-    name  = "auth.password"
-    value = "${var.db_password}"
-  }
+#   set {
+#     name  = "auth.password"
+#     value = "${var.db_password}"
+#   }
 
-  set {
-    name  = "auth.database"
-    value = "coder"
-  }
+#   set {
+#     name  = "auth.database"
+#     value = "coder"
+#   }
 
-  set {
-    name  = "persistence.size"
-    value = "10Gi"
-  }
-}
+#   set {
+#     name  = "persistence.size"
+#     value = "10Gi"
+#   }
+# }
 
-resource "helm_release" "coder" {
-  name      = "coder"
-  namespace = kubernetes_namespace.coder_namespace.metadata.0.name
+# resource "helm_release" "coder" {
+#   name      = "coder"
+#   namespace = kubernetes_namespace.coder_namespace.metadata.0.name
 
-  chart = "https://github.com/coder/coder/releases/download/v${var.coder_version}/coder_helm_${var.coder_version}.tgz"
+#   chart = "https://github.com/coder/coder/releases/download/v${var.coder_version}/coder_helm_${var.coder_version}.tgz"
 
-  values = [
-    <<EOT
-coder:
-  env:
-    - name: CODER_PG_CONNECTION_URL
-      value: "postgres://coder:${var.db_password}@${helm_release.pg_cluster.name}.coder.svc.cluster.local:5432/coder?sslmode=disable"
-    - name: CODER_EXPERIMENTAL
-      value: "true"
-    EOT
-  ]
+#   values = [
+#     <<EOT
+# coder:
+#   env:
+#     - name: CODER_PG_CONNECTION_URL
+#       value: "postgres://coder:${var.db_password}@${helm_release.pg_cluster.name}.coder.svc.cluster.local:5432/coder?sslmode=disable"
+#     - name: CODER_EXPERIMENTAL
+#       value: "true"
+#     EOT
+#   ]
 
-  depends_on = [
-    helm_release.pg_cluster
-  ]
-}
+#   depends_on = [
+#     helm_release.pg_cluster
+#   ]
+# }

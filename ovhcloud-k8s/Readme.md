@@ -1,21 +1,28 @@
+## Important Caveat
+
+Due to limitations in both OVHCloud and Terraform, this repo will cleanly create a k8s cluster with the postgres and coder helm charts, but it will fail to destroy the cluster. Given all the challenges I had with OVHCloud+Terraform, it might be better to use a different scripting language.
+
+Open bug: https://github.com/ovh/terraform-provider-ovh/issues/203
+
 ## Getting Coder Installed
 
-1. Fork this repo and set it up with [spacelift.io](https://spacelift.io/) or equivalent
-2. Create an [API Key](https://cloud.ibm.com/docs/account?topic=account-userapikey&interface=ui) and set it as IC_API_KEY
-3. Make sure to set the root directory to ibmcloud-k8s/
+1. Create an OVH Cloud account, order a public cloud, and then set up a project (copy the ID)
+2. Fork this repo and set it up with [spacelift.io](https://spacelift.io/) or equivalent
+3. Set OVH_CLOUD_PROJECT_SERVICE to the project id from (1)
+4. For US, I went to https://api.us.ovhcloud.com/createToken/?GET=/*&POST=/*&PUT=/*&DELETE=/* to generate API keys
+5. Set OVH_APPLICATION_KEY, OVH_APPLICATION_SECRET, OVH_CONSUMER_KEY to the values from (4)
+6. Make sure to set the root directory to ovhcloud-k8s/
 4. Run and apply the Terraform (took me 10 minutes)
 
 ## Coder setup Instructions
 
-1. In the IBMCloud Console, go to Kubernetes --> coder --> Kubernetes Dashboard (upper right)
-2. Change the namespace to coder (upper left)
-3. Go to Servicesm, and the public IP should be on the right.
-4. Create the initial username and password.
-5. Go to Templates, click Develop in Kubernetes, and click use template
-6. Click create template (it will refresh and prompt for 3 more template inputs)
-7. Set var.use_kubeconfig to false 
-8. Set var.namespace to coder
-9. Click create template
+1. In the OVHCloud Console, go to Public Cloud --> Load Balancer and copy the IP address on the far right.
+2. Create the initial username and password.
+3. Go to Templates, click Develop in Kubernetes, and click use template
+4. Click create template (it will refresh and prompt for 3 more template inputs)
+5. Set var.use_kubeconfig to false 
+6. Set var.namespace to coder
+7. Click create template
 
 With the admin user created and the template imported, we are ready to launch a workspace based on that template.
 
@@ -27,11 +34,6 @@ From there, you can click the Terminal button to get an interactive session in t
 
 ## In Terraform: dial tcp 127.0.0.1:80: connect: connection refused
 
-This is a Terraform bug that is really obnoxious. The only way to fix it is to manually delete things in the console/state until you get back to a good state. Or you need to fork my repo.
-
-Terraform does an "optimization" where it will skip calculating a data resource if it depends on an object that needs to be recreated. For this repo, that data resource is the one that uses your IBMCloud credentials to pull k8s config for deploying the helm charts. If you modify the k8s cluster, Terraform can skip trying to calculate the datasource. When the provider tries to run, it doesn't find the config file, and defaults to 127.0.0.1. 
-
-There are many Github issues filed on this topic, and they all come down to the same solution: install ibmcloud's cli and plugin in your CI system, and farming out to the command line to generate kubectl. Unfortunately, IBM Cloud's CLI is not installed by default on most Terraform CI systems, so you'd have to run on a custom docker image and the rabbit hole grows. 
 
 ## Workspace launches but code-server/VSCode doesn't work?
 
