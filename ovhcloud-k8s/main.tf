@@ -46,11 +46,19 @@ resource "local_file" "kubeconfig" {
   filename = "config.yml"
 }
 
+data "local_file" "test" {
+  filename = "config.yml"
+  depends_on = [
+    local_file.kubeconfig,
+    ovh_cloud_project_kube_nodepool.coder
+  ]    
+}
+
 # OVHCloud does not come with a built-in dashboard, nor does it deploy one.
 # It does make it easy to download the kubeconfig file, so I recommend checking out
 # Lens: https://app.k8slens.dev/
 provider "kubernetes" {
-  config_path = local_file.kubeconfig.filename
+  config_path = data.local_file.test.filename
 }
 
 resource "kubernetes_namespace" "coder_namespace" {
