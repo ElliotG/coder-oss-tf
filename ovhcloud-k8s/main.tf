@@ -46,14 +46,6 @@ resource "local_file" "kubeconfig" {
   filename = "config.yml"
 }
 
-data "local_file" "test" {
-  filename = "config.yml"
-  depends_on = [
-    local_file.kubeconfig,
-    ovh_cloud_project_kube_nodepool.coder
-  ]    
-}
-
 # OVHCloud does not come with a built-in dashboard, nor does it deploy one.
 # It does make it easy to download the kubeconfig file, so I recommend checking out
 # Lens: https://app.k8slens.dev/
@@ -72,41 +64,8 @@ resource "kubernetes_namespace" "coder_namespace" {
 ###############################################################
 provider "helm" {
   kubernetes {
-    config_path = local_file.kubeconfig.filename
+    config_paths = local_file.kubeconfig.filename
   }
-}
-
-# kubectl logs postgresql-0 -n coder
-resource "helm_release" "k8s_dashboard" {
-  name      = "kubernetes-dashboard"
-  namespace = kubernetes_namespace.coder_namespace.metadata.0.name
-
-  repository = "https://charts.bitnami.com/bitnami"
-  chart      = "postgresql"
-
-  set {
-    name  = "auth.username"
-    value = "coder"
-  }
-
-  set {
-    name  = "auth.password"
-    value = "${var.db_password}"
-  }
-
-  set {
-    name  = "auth.database"
-    value = "coder"
-  }
-
-  set {
-    name  = "persistence.size"
-    value = "10Gi"
-  }
-
-  depends_on = [
-    ovh_cloud_project_kube_nodepool.coder
-  ]  
 }
 
 # kubectl logs postgresql-0 -n coder
