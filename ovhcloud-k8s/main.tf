@@ -26,14 +26,14 @@ provider "ovh" {
   endpoint           = "ovh-us"
 }
 
-resource "ovh_cloud_project_kube" "mycluster" {
+resource "ovh_cloud_project_kube" "coder" {
   name         = "coder_cluster"
   region       = "US-EAST-VA-1"
 }
 
 
 resource "ovh_cloud_project_kube_nodepool" "coder" {
-  kube_id       = ovh_cloud_project_kube.mycluster.id
+  kube_id       = ovh_cloud_project_kube.coder.id
   name          = "coder-pool" //Warning: "_" char is not allowed!
   flavor_name   = "d2-8"
   desired_nodes = 2
@@ -42,7 +42,7 @@ resource "ovh_cloud_project_kube_nodepool" "coder" {
 }
 
 resource "local_file" "kubeconfig" {
-  content     = ovh_cloud_project_kube.mycluster.kubeconfig
+  content     = ovh_cloud_project_kube.coder.kubeconfig
   filename = "config.yml"
 }
 
@@ -54,6 +54,11 @@ resource "kubernetes_namespace" "coder_namespace" {
   metadata {
     name = "coder"
   }
+
+  depends_on = [
+    ovh_cloud_project_kube_nodepool.coder,
+    local_file.kubeconfig
+  ]
 }
 
 ###############################################################
