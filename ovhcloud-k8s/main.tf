@@ -47,7 +47,7 @@ resource "local_file" "kubeconfig" {
 }
 
 provider "kubernetes" {
-  config_path = local_file.kubeconfig.filename
+  config_path = var.kubeconfig_path
 }
 
 resource "kubernetes_namespace" "coder_namespace" {
