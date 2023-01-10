@@ -11,6 +11,7 @@ terraform {
 # However the second time, it won't load properly. Instead, you need
 # to mount a new kubeconfig and set the value here.
 variable "kubeconfig_path" {
+  default = ""
 }
 
 variable "coder_version" {
