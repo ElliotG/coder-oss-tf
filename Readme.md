@@ -13,3 +13,4 @@ Each subfolder in this repo is for a different platform.
 * AWS EKS
 * Digital Ocean K8s
 * IBMCloud K8s
+* OVHCloud K8s
