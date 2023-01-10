@@ -47,10 +47,7 @@ resource "local_file" "kubeconfig" {
 }
 
 provider "kubernetes" {
-    config_paths = [
-      "override-config.yml",
-      local_file.kubeconfig.filename
-    ]
+  config_path = local_file.kubeconfig.filename
 }
 
 resource "kubernetes_namespace" "coder_namespace" {
@@ -69,10 +66,7 @@ resource "kubernetes_namespace" "coder_namespace" {
 ###############################################################
 provider "helm" {
   kubernetes {
-    config_paths = [
-      "override-config.yml",
-      local_file.kubeconfig.filename
-    ]
+    config_path = local_file.kubeconfig.filename
   }
 }
 
