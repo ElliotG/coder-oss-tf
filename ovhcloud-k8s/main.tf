@@ -76,7 +76,7 @@ resource "kubernetes_namespace" "coder_namespace" {
 ###############################################################
 provider "helm" {
   kubernetes {
-    config_path = var.kubeconfig_path
+    config_path = var.kubeconfig_path != "" ? var.kubeconfig_path : local_file.kubeconfig.filename
   }
 }
 
