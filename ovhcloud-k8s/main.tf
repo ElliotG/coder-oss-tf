@@ -6,6 +6,13 @@ terraform {
   }
 }
 
+# The first time this TF file is run, the kubeconfig file can be
+# generated directly from the ovh_cloud_project_kube_nodepool resource.
+# However the second time, it won't load properly. Instead, you need
+# to mount a new kubeconfig and set the value here.
+variable "kubeconfig_path" {
+}
+
 variable "coder_version" {
   default = "0.13.6"
 }
@@ -23,12 +30,12 @@ variable "db_password" {
 # https://api.us.ovhcloud.com/createToken/?GET=/*&POST=/*&PUT=/*&DELETE=/*
 # Set OVH_CLOUD_PROJECT_SERVICE to your Project ID
 provider "ovh" {
-  endpoint           = "ovh-us"
+  endpoint = "ovh-us"
 }
 
 resource "ovh_cloud_project_kube" "coder" {
-  name         = "coder_cluster"
-  region       = "US-EAST-VA-1"
+  name   = "coder_cluster"
+  region = "US-EAST-VA-1"
 }
 
 
@@ -41,13 +48,15 @@ resource "ovh_cloud_project_kube_nodepool" "coder" {
   min_nodes     = 2
 }
 
+# There's an obnoxious TF issue while destroying 
 resource "local_file" "kubeconfig" {
-  content     = ovh_cloud_project_kube.coder.kubeconfig
-  filename = "config.yml"
+  content  = ovh_cloud_project_kube.coder.kubeconfig
+  filename = "tf-generated-config.yml"
 }
 
 provider "kubernetes" {
-  config_path = var.kubeconfig_path
+  # If the kubeconfig_path variable is set, use that. Otherwise, fall back to the local file.
+  config_path = var.kubeconfig_path != "" ? var.kubeconfig_path : local_file.filename
 }
 
 resource "kubernetes_namespace" "coder_namespace" {
@@ -59,10 +68,6 @@ resource "kubernetes_namespace" "coder_namespace" {
     ovh_cloud_project_kube_nodepool.coder,
     local_file.kubeconfig
   ]
-}
-
-variable "kubeconfig_path" {
-  default = "config.yml"
 }
 
 ###############################################################
@@ -89,7 +94,7 @@ resource "helm_release" "pg_cluster" {
 
   set {
     name  = "auth.password"
-    value = "${var.db_password}"
+    value = var.db_password
   }
 
   set {
