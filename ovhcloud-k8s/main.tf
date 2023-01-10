@@ -57,7 +57,7 @@ resource "local_file" "kubeconfig" {
 
 provider "kubernetes" {
   # If the kubeconfig_path variable is set, use that. Otherwise, fall back to the local file.
-  config_path = var.kubeconfig_path != "" ? var.kubeconfig_path : local_file.filename
+  config_path = var.kubeconfig_path != "" ? var.kubeconfig_path : local_file.kubeconfig.filename
 }
 
 resource "kubernetes_namespace" "coder_namespace" {
