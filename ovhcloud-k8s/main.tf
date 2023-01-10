@@ -61,12 +61,16 @@ resource "kubernetes_namespace" "coder_namespace" {
   ]
 }
 
+variable "kubeconfig_path" {
+  default = "config.yml"
+}
+
 ###############################################################
 # Coder configuration
 ###############################################################
 provider "helm" {
   kubernetes {
-    config_path = local_file.kubeconfig.filename
+    config_path = var.kubeconfig_path
   }
 }
 
