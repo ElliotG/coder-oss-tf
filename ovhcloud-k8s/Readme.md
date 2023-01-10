@@ -6,7 +6,16 @@
 4. For US, I went to https://api.us.ovhcloud.com/createToken/?GET=/*&POST=/*&PUT=/*&DELETE=/* to generate API keys
 5. Set OVH_APPLICATION_KEY, OVH_APPLICATION_SECRET, OVH_CONSUMER_KEY to the values from (4)
 6. Make sure to set the root directory to ovhcloud-k8s/
-4. Run and apply the Terraform (took me 10 minutes)
+7. Run and apply the Terraform (took me 10 minutes)
+
+I'm abusing the Terraform k8s provider to make it work seamlessly on OVHCloud. I recommend the following:
+
+1. Go to OVHCloud --> Kubernetes --> Service, and in the Access and security panel you can download the kubeconfig file.
+2. Go to your Spacelift stack --> Environment, and click Edit.
+3. Change the type to "Mounted File", and upload the kubeconfig file from (1)
+4. Set the path to "/mnt/workspace/source/ovhcloud-k8s/config.yml"
+
+This will enable you to update or delete the stack safely. See [this thread](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/1234) for more details as to why this is necessary.
 
 ## Coder setup Instructions
 
@@ -25,16 +34,3 @@ With the admin user created and the template imported, we are ready to launch a 
 3. Within three minutes, the workspace should launch.
 
 From there, you can click the Terminal button to get an interactive session in the k8s container, or you can click code-server to open up a VSCode window and start coding!
-
-## In Terraform, k8s and helm providers: dial tcp 127.0.0.1:80: connect: connection refused
-
-There is a chicken-and-egg problem when it comes to authenticating with your k8s cluster. Before the cluster is deployed, since there are no resources, the k8s provider has nothing to check. Terraform creates the cluster, generates kubeconfig, and the k8s provider happily does its job. However, once these resources are created, Terraform's plan phase will activate the k8s provider which will need the kubeconfig, which will only happy during apply time.
-
-This issue happens for other cloud providers, but they all have workarounds. A Terraform data source object works as it's activated during plan, and for AKS, the k8s provider allows you to shell out to the command line.
-
-The workaround for OVHCloud is to mount the kubeconfig file directly in, which is easy using Spacelift:
-
-1. Go to OVHCloud --> Kubernetes --> Service, and in the Access and security panel you can download the kubeconfig file.
-2. Go to your Spacelift stack --> Environment, and click Edit.
-3. Change the type to "Mounted File", and upload the kubeconfig file from (1)
-4. Set the path to "/mnt/workspace/source/ovhcloud-k8s/config.yml"
