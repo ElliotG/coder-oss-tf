@@ -36,7 +36,7 @@ resource "scaleway_k8s_pool" "coder" {
 }
 
 resource "null_resource" "kubeconfig" {
-  depends_on = [scaleway_k8s_pool.john] # at least one pool here
+  depends_on = [scaleway_k8s_pool.coder] # at least one pool here
   triggers = {
     host                   = scaleway_k8s_cluster.coder.kubeconfig[0].host
     token                  = scaleway_k8s_cluster.coder.kubeconfig[0].token
