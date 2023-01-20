@@ -62,9 +62,11 @@ resource "kubernetes_namespace" "coder_namespace" {
 # Coder configuration
 ###############################################################
 provider "helm" {
-  host                   = yamldecode(ovh_cloud_project_kube.coder.kubeconfig).clusters[0].cluster.server
-  token                  = yamldecode(ovh_cloud_project_kube.coder.kubeconfig).users[0].user.token
-  cluster_ca_certificate = base64decode(yamldecode(ovh_cloud_project_kube.coder.kubeconfig).clusters[0].cluster.certificate-authority-data)
+  kubernetes {
+    host                   = yamldecode(ovh_cloud_project_kube.coder.kubeconfig).clusters[0].cluster.server
+    token                  = yamldecode(ovh_cloud_project_kube.coder.kubeconfig).users[0].user.token
+    cluster_ca_certificate = base64decode(yamldecode(ovh_cloud_project_kube.coder.kubeconfig).clusters[0].cluster.certificate-authority-data)
+  }
 }
 
 # kubectl logs postgresql-0 -n coder
