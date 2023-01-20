@@ -1,6 +1,6 @@
 terraform {
   required_providers {
-    scaleway = {
+    linode = {
       source = "linode/linode"
     }
   }
@@ -40,9 +40,9 @@ output "kubeconfig" {
 }
 
 provider "kubernetes" {
-  host                   = null_resource.kubeconfig.triggers.host
-  token                  = null_resource.kubeconfig.triggers.token
-  cluster_ca_certificate = base64decode(null_resource.kubeconfig.triggers.cluster_ca_certificate)
+  host                   = linode_lke_cluster.coder.kubeconfig.triggers.host
+  token                  = linode_lke_cluster.coder.kubeconfig.triggers.token
+  cluster_ca_certificate = base64decode(linode_lke_cluster.coder.kubeconfig.triggers.cluster_ca_certificate)
 }
 
 resource "kubernetes_namespace" "coder_namespace" {
