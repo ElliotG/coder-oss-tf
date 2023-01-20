@@ -1,9 +1,10 @@
 ## Getting Coder Installed
 
 1. Fork this repo and set it up with [spacelift.io](https://spacelift.io/) or equivalent
-2. Create a [Digital Ocean API Key](https://cloud.digitalocean.com/account/api) and set it as DIGITALOCEAN_TOKEN 
-3. Make sure to set the root directory to digitalocean-k8s/
-4. Run and apply the Terraform (took me 10 minutes)
+2. Create a [Scaleway API Key](https://console.scaleway.com/iam/api-keys) and set both SCW_ACCESS_KEY and SCW_SECRET_KEY
+3. Set SCW_DEFAULT_PROJECT_ID to your [project ID](https://console.scaleway.com/project/settings)
+3. Make sure to set the root directory to scaleway-kapsule/
+4. Run and apply the Terraform (took me 8 minutes)
 
 ## Coder setup Instructions
 

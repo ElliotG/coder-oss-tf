@@ -7,7 +7,7 @@
 
 ## Coder setup Instructions
 
-1. Navigate to the IP address of the load balancer (Networking / Load Balancers.
+1. Navigate to the IP address of the load balancer (Networking / Load Balancers).
 2. Create the initial username and password.
 3. Go to Templates, click Develop in Kubernetes, and click use template
 4. Click create template (it will refresh and prompt for 3 more template inputs)
