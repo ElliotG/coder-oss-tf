@@ -1,7 +1,7 @@
 terraform {
   required_providers {
-    ovh = {
-      source = "ovh/ovh"
+    linode = {
+      source = "linode/linode"
     }
   }
 }
@@ -19,57 +19,44 @@ variable "db_password" {
 ###############################################################
 # K8s configuration
 ###############################################################
-# Set OVH_APPLICATION_KEY, OVH_APPLICATION_SECRET, OVH_CONSUMER_KEY
-# https://api.us.ovhcloud.com/createToken/?GET=/*&POST=/*&PUT=/*&DELETE=/*
-# Set OVH_CLOUD_PROJECT_SERVICE to your Project ID
-provider "ovh" {
-  endpoint = "ovh-us"
-}
+# Set LINODE_TOKEN 
+provider "linode" {}
 
-resource "ovh_cloud_project_kube" "coder" {
-  name   = "coder_cluster"
-  region = "US-EAST-VA-1"
-}
+resource "linode_lke_cluster" "coder" {
+  label       = "coder"
+  k8s_version = "1.24"
+  region      = "us-central"
+  tags        = ["prod"]
 
-
-resource "ovh_cloud_project_kube_nodepool" "coder" {
-  kube_id       = ovh_cloud_project_kube.coder.id
-  name          = "coder-pool" //Warning: "_" char is not allowed!
-  flavor_name   = "d2-8"
-  desired_nodes = 2
-  max_nodes     = 2
-  min_nodes     = 2
+  pool {
+    type  = "g6-standard-1"
+    count = 1
+  }
 }
 
 provider "kubernetes" {
-  host                   = yamldecode(ovh_cloud_project_kube.coder.kubeconfig).clusters[0].cluster.server
-  token                  = yamldecode(ovh_cloud_project_kube.coder.kubeconfig).users[0].user.token
-  cluster_ca_certificate = base64decode(yamldecode(ovh_cloud_project_kube.coder.kubeconfig).clusters[0].cluster.certificate-authority-data)
-
+  host                   = yamldecode(base64decode(linode_lke_cluster.coder.kubeconfig)).clusters[0].cluster.server
+  token                  = yamldecode(base64decode(linode_lke_cluster.coder.kubeconfig)).users[0].user.token
+  cluster_ca_certificate = base64decode(yamldecode(base64decode(linode_lke_cluster.coder.kubeconfig)).clusters[0].cluster.certificate-authority-data)
 }
 
 resource "kubernetes_namespace" "coder_namespace" {
   metadata {
     name = "coder"
   }
-
-  depends_on = [
-    ovh_cloud_project_kube_nodepool.coder
-  ]
 }
 
-###############################################################
-# Coder configuration
-###############################################################
+# ###############################################################
+# # Coder configuration
+# ###############################################################
 provider "helm" {
   kubernetes {
-    host                   = yamldecode(ovh_cloud_project_kube.coder.kubeconfig).clusters[0].cluster.server
-    token                  = yamldecode(ovh_cloud_project_kube.coder.kubeconfig).users[0].user.token
-    cluster_ca_certificate = base64decode(yamldecode(ovh_cloud_project_kube.coder.kubeconfig).clusters[0].cluster.certificate-authority-data)
+    host                   = yamldecode(base64decode(linode_lke_cluster.coder.kubeconfig)).clusters[0].cluster.server
+    token                  = yamldecode(base64decode(linode_lke_cluster.coder.kubeconfig)).users[0].user.token
+    cluster_ca_certificate = base64decode(yamldecode(base64decode(linode_lke_cluster.coder.kubeconfig)).clusters[0].cluster.certificate-authority-data)
   }
 }
 
-# kubectl logs postgresql-0 -n coder
 resource "helm_release" "pg_cluster" {
   name      = "postgresql"
   namespace = kubernetes_namespace.coder_namespace.metadata.0.name
