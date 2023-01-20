@@ -11,6 +11,7 @@ Each subfolder in this repo is for a different platform.
 * Google GKE 
 * Azure AKS
 * AWS EKS
-* Digital Ocean K8s
+* DigitalOcean DOKS
 * IBMCloud K8s
 * OVHCloud K8s
+* Scaleway K8s Kapsule
