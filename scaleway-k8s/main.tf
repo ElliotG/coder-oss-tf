@@ -19,7 +19,8 @@ variable "db_password" {
 ###############################################################
 # K8s configuration
 ###############################################################
-# Set DIGITALOCEAN_TOKEN
+# See: https://registry.terraform.io/providers/scaleway/scaleway/latest/docs#authentication
+# Set SCW_ACCESS_KEY, SCW_SECRET_KEY, and SCW_DEFAULT_PROJECT_ID
 provider "scaleway" {}
 
 resource "scaleway_k8s_cluster" "coder" {
@@ -35,6 +36,9 @@ resource "scaleway_k8s_pool" "coder" {
   size       = 1
 }
 
+# This was copied directly from the Scaleway Terraform docs I don't believe this protects 
+# from the weird provider-depending-on-resources issue. However, since it's directly from
+# their docs, I'll keep it this way. See Digital Ocean for a simpler approach.
 resource "null_resource" "kubeconfig" {
   depends_on = [scaleway_k8s_pool.coder] # at least one pool here
   triggers = {
