@@ -37,6 +37,7 @@ resource "linode_lke_cluster" "coder" {
 //Export this cluster's attributes
 output "kubeconfig" {
    value = linode_lke_cluster.coder.kubeconfig
+   sensitive = true
 }
 
 # provider "kubernetes" {
