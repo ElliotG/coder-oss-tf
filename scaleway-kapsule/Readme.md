@@ -8,13 +8,15 @@
 
 ## Coder setup Instructions
 
-1. Navigate to the IP address of the load balancer (Networking / Load Balancers.
-2. Create the initial username and password.
-3. Go to Templates, click Develop in Kubernetes, and click use template
-4. Click create template (it will refresh and prompt for 3 more template inputs)
-5. Set var.use_kubeconfig to false 
-6. Set var.namespace to coder
-6. Click create template
+1. Navigate to your cluster dashboard (Kubernetes / coder / Dashboard)
+2. Change the namespace to coder (upper left)
+3. Go to Services and the public IP should be on the right.
+4. Create the initial username and password.
+5. Go to Templates, click Develop in Kubernetes, and click use template
+6. Click create template (it will refresh and prompt for 3 more template inputs)
+7. Set var.use_kubeconfig to false 
+8. Set var.namespace to coder
+9. Click create template
 
 With the admin user created and the template imported, we are ready to launch a workspace based on that template.
 

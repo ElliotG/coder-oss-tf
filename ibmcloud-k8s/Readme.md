@@ -9,7 +9,7 @@
 
 1. In the IBMCloud Console, go to Kubernetes --> coder --> Kubernetes Dashboard (upper right)
 2. Change the namespace to coder (upper left)
-3. Go to Servicesm, and the public IP should be on the right.
+3. Go to Services and the public IP should be on the right.
 4. Create the initial username and password.
 5. Go to Templates, click Develop in Kubernetes, and click use template
 6. Click create template (it will refresh and prompt for 3 more template inputs)
