@@ -39,17 +39,17 @@ output "kubeconfig" {
    value = linode_lke_cluster.coder.kubeconfig
 }
 
-provider "kubernetes" {
-  host                   = linode_lke_cluster.coder.kubeconfig.triggers.host
-  token                  = linode_lke_cluster.coder.kubeconfig.triggers.token
-  cluster_ca_certificate = base64decode(linode_lke_cluster.coder.kubeconfig.triggers.cluster_ca_certificate)
-}
+# provider "kubernetes" {
+#   host                   = linode_lke_cluster.coder.kubeconfig.triggers.host
+#   token                  = linode_lke_cluster.coder.kubeconfig.triggers.token
+#   cluster_ca_certificate = base64decode(linode_lke_cluster.coder.kubeconfig.triggers.cluster_ca_certificate)
+# }
 
-resource "kubernetes_namespace" "coder_namespace" {
-  metadata {
-    name = "coder"
-  }
-}
+# resource "kubernetes_namespace" "coder_namespace" {
+#   metadata {
+#     name = "coder"
+#   }
+# }
 
 # # ###############################################################
 # # # Coder configuration
