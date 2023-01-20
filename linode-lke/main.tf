@@ -34,24 +34,17 @@ resource "linode_lke_cluster" "coder" {
     }
 }
 
-//Export this cluster's attributes
- resource "null_resource" "get_prometheus_ip" {
-  provisioner "local-exec" {
-    command = "echo ${linode_lke_cluster.coder.kubeconfig}"
-  }
+provider "kubernetes" {
+  host                   = yamldecode(base64decode(linode_lke_cluster.coder.kubeconfig)).clusters[0].cluster.server
+  token                  = yamldecode(base64decode(linode_lke_cluster.coder.kubeconfig)).users[0].user.token
+  cluster_ca_certificate = base64decode(yamldecode(base64decode(linode_lke_cluster.coder.kubeconfig)).clusters[0].cluster.certificate-authority-data)
 }
 
-# provider "kubernetes" {
-#   host                   = linode_lke_cluster.coder.kubeconfig.triggers.host
-#   token                  = linode_lke_cluster.coder.kubeconfig.triggers.token
-#   cluster_ca_certificate = base64decode(linode_lke_cluster.coder.kubeconfig.triggers.cluster_ca_certificate)
-# }
-
-# resource "kubernetes_namespace" "coder_namespace" {
-#   metadata {
-#     name = "coder"
-#   }
-# }
+resource "kubernetes_namespace" "coder_namespace" {
+  metadata {
+    name = "coder"
+  }
+}
 
 # # ###############################################################
 # # # Coder configuration
