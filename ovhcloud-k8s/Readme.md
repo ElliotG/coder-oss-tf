@@ -27,13 +27,3 @@ With the admin user created and the template imported, we are ready to launch a 
 3. Within three minutes, the workspace should launch.
 
 From there, you can click the Terminal button to get an interactive session in the k8s container, or you can click code-server to open up a VSCode window and start coding!
-
-## kubernetes or helm provider is erroring during authentiation
-I'm purposefully using an [anti-pattern](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs) for the k8s provider in which I am both deploying the cluster and the helm charts in 1 repo for demo purposes only. If you run into an issue where the k8s or helm providers can't authenticate, you can fix it this way:
-
-1. Go to OVHCloud --> Kubernetes --> Service, and in the Access and security panel you can download the kubeconfig file.
-2. Go to your Spacelift stack --> Environment, and click Edit.
-3. Change the type to "Mounted File", and upload the kubeconfig file from (1)
-4. Create an environment variable: "TF_VAR_kubeconfig_path" where the value is the path above.
-
-This will enable you to update or delete the stack safely. See [this thread](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/1234) for more details as to why this is necessary.

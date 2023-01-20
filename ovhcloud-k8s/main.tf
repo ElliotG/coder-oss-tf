@@ -6,14 +6,6 @@ terraform {
   }
 }
 
-# The first time this TF file is run, the kubeconfig file can be
-# generated directly from the ovh_cloud_project_kube_nodepool resource.
-# However the second time, it won't load properly. Instead, you need
-# to mount a new kubeconfig and set the value here.
-variable "kubeconfig_path" {
-  default = ""
-}
-
 variable "coder_version" {
   default = "0.13.6"
 }
@@ -49,15 +41,11 @@ resource "ovh_cloud_project_kube_nodepool" "coder" {
   min_nodes     = 2
 }
 
-# There's an obnoxious TF issue while destroying 
-resource "local_file" "kubeconfig" {
-  content  = ovh_cloud_project_kube.coder.kubeconfig
-  filename = "tf-generated-config.yml"
-}
-
 provider "kubernetes" {
-  # If the kubeconfig_path variable is set, use that. Otherwise, fall back to the local file.
-  config_path = var.kubeconfig_path != "" ? var.kubeconfig_path : local_file.kubeconfig.filename
+  host                   = yamldecode(ovh_cloud_project_kube.coder.kubeconfig).clusters[0].cluster.server
+  token                  = yamldecode(ovh_cloud_project_kube.coder.kubeconfig).users[0].user.token
+  cluster_ca_certificate = base64decode(yamldecode(ovh_cloud_project_kube.coder.kubeconfig).clusters[0].cluster.certificate-authority-data)
+
 }
 
 resource "kubernetes_namespace" "coder_namespace" {
@@ -66,8 +54,7 @@ resource "kubernetes_namespace" "coder_namespace" {
   }
 
   depends_on = [
-    ovh_cloud_project_kube_nodepool.coder,
-    local_file.kubeconfig
+    ovh_cloud_project_kube_nodepool.coder
   ]
 }
 
@@ -75,9 +62,9 @@ resource "kubernetes_namespace" "coder_namespace" {
 # Coder configuration
 ###############################################################
 provider "helm" {
-  kubernetes {
-    config_path = var.kubeconfig_path != "" ? var.kubeconfig_path : local_file.kubeconfig.filename
-  }
+  host                   = yamldecode(ovh_cloud_project_kube.coder.kubeconfig).clusters[0].cluster.server
+  token                  = yamldecode(ovh_cloud_project_kube.coder.kubeconfig).users[0].user.token
+  cluster_ca_certificate = base64decode(yamldecode(ovh_cloud_project_kube.coder.kubeconfig).clusters[0].cluster.certificate-authority-data)
 }
 
 # kubectl logs postgresql-0 -n coder
