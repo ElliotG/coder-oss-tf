@@ -35,9 +35,10 @@ resource "linode_lke_cluster" "coder" {
 }
 
 //Export this cluster's attributes
-output "kubeconfig" {
-   value = linode_lke_cluster.coder.kubeconfig
-   sensitive = false
+ resource "null_resource" "get_prometheus_ip" {
+  provisioner "local-exec" {
+    command = "echo ${linode_lke_cluster.coder.kubeconfig}"
+  }
 }
 
 # provider "kubernetes" {
