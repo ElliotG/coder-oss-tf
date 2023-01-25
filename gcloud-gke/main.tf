@@ -47,18 +47,30 @@ resource "google_compute_subnetwork" "vpc_subnet" {
 # K8s configuration
 ###############################################################
 resource "google_container_cluster" "primary" {
-  name             = "${var.project}-gke"
-  location         = var.region
-  network          = google_compute_network.vpc_network.name
-  subnetwork       = google_compute_subnetwork.vpc_subnet.name
-  enable_autopilot = true
-  vertical_pod_autoscaling {
-    enabled = true
+  name                     = "${var.project}-gke"
+  location                 = var.region
+  network                  = google_compute_network.vpc_network.name
+  subnetwork               = google_compute_subnetwork.vpc_subnet.name
+  remove_default_node_pool = true
+  initial_node_count       = 1
+}
+
+resource "google_container_node_pool" "coder_pool" {
+  name     = "coder-node-pool"
+  location = var.region
+  cluster  = google_container_cluster.primary.name
+  autoscaling {
+    min_node_count = 1
+    max_node_count = 1
+  }
+
+  node_config {
+    machine_type = "e2-standard-2"
   }
 }
 
 data "google_client_config" "default" {
-  depends_on = [google_container_cluster.primary]
+  depends_on = [google_container_cluster.primary, google_container_node_pool.coder_pool]
 }
 
 provider "kubernetes" {
@@ -73,6 +85,7 @@ resource "kubernetes_namespace" "coder_namespace" {
   metadata {
     name = "coder"
   }
+  depends_on = [google_container_cluster.primary, google_container_node_pool.coder_pool]
 }
 
 ###############################################################
