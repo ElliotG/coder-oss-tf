@@ -73,11 +73,16 @@ data "google_client_config" "default" {
   depends_on = [google_container_cluster.primary, google_container_node_pool.coder_pool]
 }
 
+data "google_container_cluster" "primary" {
+  name = google_container_cluster.primary.name
+  zone = google_container_cluster.primary.location
+}
+
 provider "kubernetes" {
   host  = "https://${google_container_cluster.primary.endpoint}"
   token = data.google_client_config.default.access_token
   cluster_ca_certificate = base64decode(
-    google_container_cluster.primary.master_auth[0].cluster_ca_certificate,
+    data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate
   )
 }
 
@@ -96,7 +101,7 @@ provider "helm" {
     host  = "https://${google_container_cluster.primary.endpoint}"
     token = data.google_client_config.default.access_token
     cluster_ca_certificate = base64decode(
-      google_container_cluster.primary.master_auth[0].cluster_ca_certificate,
+          data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate
     )
   }
 }
