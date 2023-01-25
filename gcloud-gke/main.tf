@@ -74,8 +74,8 @@ data "google_client_config" "default" {
 }
 
 data "google_container_cluster" "primary" {
-  name = google_container_cluster.primary.name
-  zone = google_container_cluster.primary.location
+  name     = google_container_cluster.primary.name
+  location = google_container_cluster.primary.location
 }
 
 provider "kubernetes" {
